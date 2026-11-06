@@ -34,7 +34,7 @@ class DeployAgent:
                 writer = csv.writer(file)
                 writer.writerow(["timestamp", "dataset_changed", "status", "response_time_ms", "action_type", "environment", "worker_id", "app_name", "build_id"])
 
-    def get_build_from_registry(self, app_name: str) -> dict:
+    def get_build_from_registry(self, app_name: str) -> dict | None:
         """Get latest build for app from build registry."""
         try:
             if os.path.exists(self.build_registry):
@@ -75,7 +75,7 @@ class DeployAgent:
             fail_count = 1 if status == "failure" else 0
             self.metrics.record_deploy_success_rate(1, success_count, fail_count, response_time)
     
-    def deploy_from_build(self, app_name: str, build_path: str = None) -> dict:
+    def deploy_from_build(self, app_name: str, build_path: str | None = None) -> dict:
         """Deploy application using registry build OR local build workspace."""
 
         # CASE 1 — Deploy from local build workspace

@@ -1,35 +1,40 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  useLiveDashboard, 
-  useIngestLink, 
+import {
+  useLiveDashboard,
+  useIngestLink,
   useRemoveLink,
-  useObserverEvents
+  useObserverEvents,
+  useUnifiedProductHealth,
+  useIncidents
 } from '../hooks/useBackend';
-import { 
-  Activity, 
-  Cpu, 
-  HardDrive, 
-  TrendingUp, 
-  AlertTriangle, 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
-  ShieldAlert, 
-  ExternalLink,
+import type { IncidentItem, UnifiedProductItem } from '../types';
+import {
+  Activity,
+  Cpu,
+  TrendingUp,
+  AlertTriangle,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  ShieldAlert,
   ArrowRightLeft,
-  Loader2
+  Loader2,
+  AlertOctagon,
+  Clock,
+  Layers,
+  Server
 } from 'lucide-react';
-import { 
-  AreaChart, 
-  Area, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -40,6 +45,8 @@ import { toast } from 'sonner';
 export default function Dashboard() {
   const { data: dashboard, isLoading, isError, refetch } = useLiveDashboard();
   const { data: eventsData } = useObserverEvents(10);
+  const { data: unifiedHealth } = useUnifiedProductHealth();
+  const { data: incidentsData } = useIncidents();
   const ingestMutation = useIngestLink();
   const removeMutation = useRemoveLink();
 
@@ -64,7 +71,7 @@ export default function Dashboard() {
             Failed to connect to the Decision Brain API. Ensure the backend stack is running and reachable.
           </p>
         </div>
-        <button 
+        <button
           onClick={() => refetch()}
           className="px-4 py-2 bg-primary text-primary-foreground font-sans text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
         >
@@ -77,7 +84,7 @@ export default function Dashboard() {
   const handleIngest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newLink.trim()) return;
-    
+
     toast.promise(ingestMutation.mutateAsync(newLink), {
       loading: 'Ingesting repository link...',
       success: (res) => {
@@ -173,9 +180,22 @@ export default function Dashboard() {
     return [];
   })();
 
+  const activeIncidents: IncidentItem[] = incidentsData?.incidents || [];
+  const customerProducts: UnifiedProductItem[] = unifiedHealth?.products || [];
+  const platformComponents: UnifiedProductItem[] = unifiedHealth?.platform_health?.services || [];
+
+  const getCanonicalBadge = (state: string) => {
+    const s = (state || '').toLowerCase();
+    if (s === 'healthy') return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30';
+    if (s === 'degraded') return 'bg-amber-500/10 text-amber-500 border-amber-500/30';
+    if (s === 'unreachable') return 'bg-rose-500/10 text-rose-500 border-rose-500/30';
+    if (s === 'stale') return 'bg-purple-500/10 text-purple-400 border-purple-500/30';
+    return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30';
+  };
+
   return (
     <div className="flex-1 flex flex-col gap-6 font-sans">
-      
+
       {/* Dashboard Top Header */}
       <header className="flex justify-between items-end pb-4 border-b border-border/60">
         <div>
@@ -191,6 +211,122 @@ export default function Dashboard() {
           SYSTEM OPERATIONAL
         </div>
       </header>
+
+      {/* Incident Correlation Alert Banner (Requirement 7) */}
+      {activeIncidents.length > 0 && (
+        <section className="bg-rose-950/40 border border-rose-800/60 rounded-xl p-4 flex flex-col gap-2 font-mono text-xs shadow-lg animate-pulse">
+          <div className="flex items-center gap-2 text-rose-400 font-bold tracking-wide">
+            <AlertOctagon className="w-5 h-5" />
+            <span>ACTIVE INCIDENT DETECTED ({activeIncidents.length} CORRELATED ALARM{activeIncidents.length > 1 ? 'S' : ''})</span>
+          </div>
+          {activeIncidents.map((inc: IncidentItem, i: number) => (
+            <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-rose-900/20 p-2.5 rounded border border-rose-800/40 text-[11px]">
+              <div>
+                <span className="font-bold text-foreground">[{inc.incident_id}] {inc.symptoms?.join(', ') || 'Service Alert'}</span> &bull;
+                <span className="text-rose-300 ml-1">Products: {inc.affected_products?.join(', ') || 'Core'}</span> &bull;
+                <span className="text-zinc-300 ml-1">Probable Source: {inc.probable_source}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded text-[9px] font-bold uppercase">{inc.severity}</span>
+                <span className="text-[10px] text-zinc-400">{new Date(inc.started_at).toLocaleTimeString()}</span>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Requirement 5: Unified Product Health Scorecard */}
+      <section className="premium-card flex flex-col gap-4 font-mono">
+        <div className="flex justify-between items-center border-b border-border/60 pb-3">
+          <div>
+            <h3 className="font-bold text-xs uppercase tracking-wider text-foreground flex items-center gap-2">
+              <Layers className="w-4 h-4 text-primary" />
+              Unified Product Health Scorecard
+            </h3>
+            <p className="text-[10px] text-muted-foreground mt-0.5 font-sans">
+              Strictly separating customer-facing product services from internal Pravah platform components.
+            </p>
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            Platform Status: <span className="font-bold text-emerald-400">{unifiedHealth?.platform_health?.status || 'Healthy'}</span>
+          </div>
+        </div>
+
+        {/* Customer Products Table */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer Products Tier</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[10px] divide-y divide-border">
+              <thead>
+                <tr className="text-muted-foreground">
+                  <th className="pb-2 font-medium">Product / URL</th>
+                  <th className="pb-2 font-medium">State (Canonical)</th>
+                  <th className="pb-2 font-medium">P95 Latency</th>
+                  <th className="pb-2 font-medium">Consecutive Fails</th>
+                  <th className="pb-2 font-medium">Failure Reason / Diagnostics</th>
+                  <th className="pb-2 font-medium text-right">Last Successful Check</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {customerProducts.length > 0 ? (
+                  customerProducts.map((p: UnifiedProductItem, idx: number) => (
+                    <tr key={idx} className="hover:bg-secondary/20">
+                      <td className="py-2.5 font-semibold text-foreground flex items-center gap-1.5">
+                        <Server className="w-3.5 h-3.5 text-muted-foreground" />
+                        <div>
+                          <div>{p.name}</div>
+                          <div className="text-[9px] text-muted-foreground font-normal max-w-[150px] truncate">{p.url}</div>
+                        </div>
+                      </td>
+                      <td className="py-2.5">
+                        <span className={`px-2 py-0.5 rounded border text-[9px] font-bold uppercase ${getCanonicalBadge(p.status)}`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="py-2.5 font-mono">{p.latency_p95_ms !== null && p.latency_p95_ms !== undefined ? `${p.latency_p95_ms}ms` : 'N/A'}</td>
+                      <td className="py-2.5">
+                        <span className={p.consecutive_failures > 0 ? 'text-rose-400 font-bold' : 'text-muted-foreground'}>
+                          {p.consecutive_failures}
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-muted-foreground max-w-xs truncate" title={p.failure_reason || 'Operational'}>
+                        {p.failure_reason || 'No active degradation'}
+                      </td>
+                      <td className="py-2.5 text-right text-muted-foreground">
+                        {p.last_successful_check ? new Date(p.last_successful_check).toLocaleTimeString() : 'Never'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="py-4 text-center text-muted-foreground italic">
+                      No customer product endpoints registered yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Pravah Internal Platform Components */}
+        <div className="flex flex-col gap-2 pt-2 border-t border-border/40">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pravah Platform Core</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {platformComponents.map((comp: UnifiedProductItem, idx: number) => (
+              <div key={idx} className="bg-secondary/30 border border-border/40 rounded-lg p-2.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-foreground">{comp.name}</span>
+                  <span className="text-[9px] text-muted-foreground max-w-[120px] truncate">{comp.url || 'Internal Service'}</span>
+                </div>
+                <span className={`px-2 py-0.5 rounded border text-[9px] font-bold uppercase ${getCanonicalBadge(comp.status)}`}>
+                  {comp.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Top 4 Stats Rows */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -222,7 +358,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="name" stroke="var(--muted-foreground)" />
                 <YAxis stroke="var(--muted-foreground)" />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                 />
                 <Area type="monotone" dataKey="latency" name="Latency (ms)" stroke="var(--primary)" fillOpacity={1} fill="url(#colorLatency)" strokeWidth={2} />
@@ -275,7 +411,7 @@ export default function Dashboard() {
 
       {/* Resource Util & failover row */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Resource Usage bar chart */}
         <div className="lg:col-span-2 premium-card flex flex-col gap-4">
           <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground font-mono">Resource Utilization</h4>
@@ -286,7 +422,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                   <XAxis dataKey="name" stroke="var(--muted-foreground)" />
                   <YAxis stroke="var(--muted-foreground)" />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
                     formatter={(value: any, name: any) => [value !== null && value !== undefined ? `${value}%` : 'N/A', name]}
                   />
@@ -329,22 +465,22 @@ export default function Dashboard() {
 
       {/* Monitored Repos and Link Ingestions */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Monitored Links Ingestion table */}
         <div className="lg:col-span-2 premium-card flex flex-col gap-4 font-mono">
           <div className="flex justify-between items-center border-b border-border/60 pb-3">
             <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Live Telemetry Ingestions</h4>
-            
+
             {/* Form */}
             <form onSubmit={handleIngest} className="flex gap-2">
-              <input 
+              <input
                 type="text"
                 placeholder="https://github.com/org/repo"
                 className="bg-background text-xs px-4 py-2.5 rounded-xl border border-border outline-none focus:border-primary placeholder-muted-foreground w-56 font-mono shadow-sm"
                 value={newLink}
                 onChange={(e) => setNewLink(e.target.value)}
               />
-              <button 
+              <button
                 type="submit"
                 disabled={ingestMutation.isPending}
                 className="bg-primary hover:opacity-90 text-primary-foreground text-xs px-5 py-2.5 rounded-xl font-sans font-bold flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer border border-primary/20 active:scale-[0.98] transition-all"
@@ -377,7 +513,7 @@ export default function Dashboard() {
                     <td className="py-2.5 text-rose-500">{item.errors_24h}</td>
                     <td className="py-2.5 text-right">
                       {item.url.startsWith('http') && item.name !== 'BLACKHOLE' && item.name !== 'UNI_GURU' ? (
-                        <button 
+                        <button
                           onClick={() => handleRemove(item.url)}
                           className="p-1 hover:text-rose-500 text-muted-foreground transition-colors"
                           title="Remove from monitoring"
@@ -409,7 +545,7 @@ export default function Dashboard() {
                         {ev.status} {ev.latency_ms ? `(${Math.round(ev.latency_ms)}ms)` : ''}
                       </span>
                     </div>
-                    <span className="text-[9px] text-muted-foreground truncate max-w-xs">{ev.detail}</span>
+                    <span className="text-[9px] text-muted-foreground truncate max-w-xs">{ev.sanitized_detail || ev.detail}</span>
                     <span className="text-[8px] text-muted-foreground/60">{ev.ts ? new Date(ev.ts).toLocaleTimeString() : ''}</span>
                   </div>
                 </div>

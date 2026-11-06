@@ -7,10 +7,15 @@ import {
   ObservedService, 
   TelemetryEvent,
   ActionScope,
-  RuntimeState
+  RuntimeState,
+  UnifiedProductHealthResponse,
+  TrafficSummary,
+  PerformanceSummary,
+  DependencyNode,
+  IncidentItem
 } from '../types';
 
-const DECISION_BRAIN_URL = process.env.NEXT_PUBLIC_DECISION_BRAIN_URL || 'http://localhost:8000';
+const DECISION_BRAIN_URL = process.env.NEXT_PUBLIC_DECISION_BRAIN_URL || 'http://localhost:8010';
 const CONTROL_PLANE_URL = process.env.NEXT_PUBLIC_CONTROL_PLANE_URL || 'http://localhost:7000';
 const OBSERVER_URL = process.env.NEXT_PUBLIC_OBSERVER_URL || 'http://localhost:8600';
 
@@ -176,6 +181,31 @@ export const api = {
     const res = await observerApi.get('/api/lineage');
     return res.data;
   },
+
+  getUnifiedProductHealth: async (): Promise<UnifiedProductHealthResponse> => {
+    const res = await observerApi.get<UnifiedProductHealthResponse>('/api/products/unified-health');
+    return res.data;
+  },
+
+  getTrafficMetrics: async (): Promise<TrafficSummary> => {
+    const res = await observerApi.get<TrafficSummary>('/api/metrics/traffic');
+    return res.data;
+  },
+
+  getPerformanceMetrics: async (): Promise<PerformanceSummary> => {
+    const res = await observerApi.get<PerformanceSummary>('/api/metrics/performance');
+    return res.data;
+  },
+
+  getDependencyTopology: async (): Promise<{ topology: DependencyNode[]; count: number }> => {
+    const res = await observerApi.get<{ topology: DependencyNode[]; count: number }>('/api/dependencies/graph');
+    return res.data;
+  },
+
+  getIncidents: async (): Promise<{ incidents: IncidentItem[]; total: number }> => {
+    const res = await observerApi.get<{ incidents: IncidentItem[]; total: number }>('/api/incidents');
+    return res.data;
+  },
 };
 
 // =============================================================================
@@ -190,11 +220,11 @@ import type {
 
 // Group 1 — VANA MasterDB Observation API (live, port 8013)
 const GROUP1_URL =
-  process.env.NEXT_PUBLIC_VANA_GROUP1_URL || 'http://163.128.209.18:8013';
+  process.env.NEXT_PUBLIC_VANA_GROUP1_URL || 'http://localhost:8013';
 
 // Group 4 — deployed Decision Brain (port 8010 externally, same origin locally via /vana/execute)
 const GROUP4_VANA_URL =
-  process.env.NEXT_PUBLIC_VANA_GROUP4_URL || 'http://163.128.209.18:8010';
+  process.env.NEXT_PUBLIC_VANA_GROUP4_URL || 'http://localhost:8010';
 
 /**
  * Fetch a canonical observation from the Group 1 live API.

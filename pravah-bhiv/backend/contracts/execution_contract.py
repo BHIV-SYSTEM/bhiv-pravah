@@ -284,7 +284,7 @@ def advance_execution_state(
 
     _validate_terminal_state_lock(contract, new_state)
     validate_state_transition(contract.execution_state, new_state)
-    
+
     # Phase 4: Semantic validation - check meaning and prevent hidden states
     validate_semantic_transition_with_context(
         current_state=contract.execution_state,
@@ -292,7 +292,7 @@ def advance_execution_state(
         history=contract.execution_state_history,
         execution_id=contract.execution_id,
     )
-    
+
     # Phase 4: Semantic guard engine - comprehensive semantic + governance validation
     try:
         # Import here to avoid circular import at module import time
@@ -338,4 +338,4 @@ def advance_execution_state(
 
 
 # Canonical alias matching forensic contract terminology
-transition_contract_state = advance_execution_state
+transition_contract_state = advance_execution_state

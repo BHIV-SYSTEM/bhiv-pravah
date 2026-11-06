@@ -10,14 +10,14 @@ logger = logging.getLogger("security.nonce_store")
 
 class NonceStore:
     """Stores nonces to prevent replay attacks."""
-    
+
     def __init__(self, store_file: str = 'security/nonce_store.json', ttl: int = 3600):
         self.store_file = store_file
         self.ttl = ttl  # Time-to-live in seconds
         self.nonces: Set[str] = set()
         self.nonce_timestamps = {}
         self._load_store()
-    
+
     def _load_store(self):
         """Load nonces from file. Fails closed on corruption or read errors."""
         if os.path.exists(self.store_file):
@@ -36,7 +36,7 @@ class NonceStore:
             except Exception as exc:
                 logger.critical("Nonce store corrupted or unreadable at '%s': %s", self.store_file, exc)
                 raise RuntimeError(f"Nonce store unreadable or corrupted: {exc}") from exc
-    
+
     def _save_store(self):
         """Save nonces to file atomically. Fails closed on write errors."""
         store_dir = os.path.dirname(self.store_file)
@@ -60,7 +60,7 @@ class NonceStore:
                 except Exception:
                     pass
             raise RuntimeError(f"Nonce persistence failed: {exc}") from exc
-    
+
     def _cleanup_expired(self):
         """Remove expired nonces."""
         current_time = time.time()
@@ -71,7 +71,7 @@ class NonceStore:
         for nonce in expired:
             self.nonces.discard(nonce)
             self.nonce_timestamps.pop(nonce, None)
-    
+
     def check_and_store(self, nonce: str) -> bool:
         """
         Check if nonce is valid and store it. Returns True if valid (not seen before).
@@ -79,16 +79,16 @@ class NonceStore:
         """
         if not nonce:
             return False
-        
+
         # Complete pre-operation snapshot to ensure exact rollback on save failure
         pre_nonces = set(self.nonces)
         pre_timestamps = dict(self.nonce_timestamps)
 
         self._cleanup_expired()
-        
+
         if nonce in self.nonces:
             return False  # Replay attack detected
-        
+
         # Store nonce
         self.nonces.add(nonce)
         self.nonce_timestamps[nonce] = time.time()
@@ -98,9 +98,9 @@ class NonceStore:
             self.nonces = pre_nonces
             self.nonce_timestamps = pre_timestamps
             raise
-        
+
         return True
-    
+
     def is_valid(self, nonce: str) -> bool:
         """Check if nonce is valid without storing."""
         if not nonce:
@@ -130,4 +130,4 @@ def reset_nonce_store(store_file: str | None = None) -> None:
     """Reset global nonce store singleton (for testing)."""
     global _nonce_store, _default_store_file
     _nonce_store = None
-    _default_store_file = store_file
+    _default_store_file = store_file

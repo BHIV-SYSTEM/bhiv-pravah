@@ -3,7 +3,7 @@
 import React, { useCallback, useReducer } from 'react';
 import {
   Leaf, MapPin, Database, Brain, ShieldCheck, GitBranch, RefreshCw,
-  ChevronDown, Loader2, Activity, Hash, Eye, Info, CheckCircle2, XCircle, Clock, AlertTriangle
+  ChevronDown, Loader2, Activity, Hash, Eye, Info, CheckCircle2, XCircle, Clock, AlertTriangle, ShieldAlert
 } from 'lucide-react';
 import {
   fetchVanaObservation, fetchGroup2Ruling, submitVanaExecute,
@@ -249,7 +249,7 @@ export default function VanaControlCenter() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <SectionCard icon={<Database className="w-4 h-4 text-blue-400" />} title="Group 1 — Canonical Observation" status={pipeline.group1Status}>
               {pipeline.group1Status === 'idle' && <span className="text-[10px] text-muted-foreground italic">Awaiting observation retrieval…</span>}
-              {pipeline.group1Status === 'loading' && <span className="text-[10px] text-muted-foreground">Fetching from VANA MasterDB (163.128.209.18:8013)…</span>}
+              {pipeline.group1Status === 'loading' && <span className="text-[10px] text-muted-foreground">Fetching from VANA MasterDB…</span>}
               {pipeline.group1Status === 'error' && <div className="flex flex-col gap-1"><span className="text-[10px] text-rose-400 font-bold">GROUP 1 API ERROR</span><span className="text-[10px] text-rose-300 break-all">{pipeline.group1Error}</span></div>}
               {pipeline.group1Status === 'success' && obs && (
                 <div className="grid grid-cols-1 gap-2">
@@ -306,7 +306,7 @@ export default function VanaControlCenter() {
 
             <SectionCard icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />} title="Group 4 — Governance" status={pipeline.group4Status}>
               {pipeline.group4Status === 'idle' && <span className="text-[10px] text-muted-foreground italic">Awaiting Group 2 ruling…</span>}
-              {pipeline.group4Status === 'loading' && <span className="text-[10px] text-muted-foreground">Submitting to 163.128.209.18:8010/vana/execute…</span>}
+              {pipeline.group4Status === 'loading' && <span className="text-[10px] text-muted-foreground">Submitting to Decision Brain (/vana/execute)…</span>}
               {pipeline.group4Status === 'error' && <div className="flex flex-col gap-1"><span className="text-[10px] text-rose-400 font-bold">GROUP 4 API ERROR</span><span className="text-[10px] text-rose-300 break-all">{pipeline.group4Error}</span></div>}
               {pipeline.group4Status === 'success' && evidence && (
                 <div className="flex flex-col gap-2">
@@ -328,9 +328,19 @@ export default function VanaControlCenter() {
                     <Field label="Execution ID" value={evidence.execution_id} />
                     <Field label="Recorded At" value={evidence.recorded_at} />
                   </div>
-                  <div className="mt-1 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center gap-2">
-                    <Activity className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="text-[10px] text-amber-300 font-bold">{executionStatus}</span>
+                  <div className="mt-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span className="text-xs text-amber-300 font-bold tracking-wide">CONSTITUTIONAL ABSTENTION ACTIVE</span>
+                    </div>
+                    <p className="text-[11px] text-amber-200/90 font-sans leading-relaxed">
+                      Autonomous action intentionally withheld by governance safety contracts.
+                      Required environmental context could not be verified by Group 2, mandating fail-safe non-intervention (Section 4.2).
+                    </p>
+                    <div className="mt-1 flex items-center gap-2 text-[10px] font-mono text-amber-400">
+                      <span>Execution Outcome:</span>
+                      <span className="font-bold uppercase">{executionStatus}</span>
+                    </div>
                   </div>
                 </div>
               )}

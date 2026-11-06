@@ -123,7 +123,8 @@ class IssueDetector(BaseAgent):
                     try:
                         last = df.iloc[-1]
                         status = str(last.get("status", "")).lower().strip()
-                        rt = pd.to_numeric(last.get("response_time_ms"), errors="coerce")
+                        resp_val = last.get("response_time_ms")
+                        rt = pd.to_numeric(resp_val, errors="coerce") if resp_val is not None else None
                         
                         if status == "failure":
                             state, reason = "deployment_failure", "Last deployment attempt failed."

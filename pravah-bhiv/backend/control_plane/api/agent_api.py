@@ -15,10 +15,11 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import datetime
+from datetime import datetime, timezone
 import json
 import logging
 import os
+import requests
 import sys
 import threading
 import time
@@ -30,7 +31,7 @@ root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if root_dir not in sys.path:
     sys.path.append(root_dir)
 from core_hooks.middleware import verify_request_trace
-from jsonschema import ValidationError, validate
+from jsonschema import ValidationError, validate  # type: ignore[import-untyped]
 from core_hooks.rules import validate_trace
 
 
@@ -78,13 +79,14 @@ if os.getenv("ENABLE_AGENT_LOOP", "true").lower() == "true" and "pytest" not in 
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": [
+_cors_env = os.getenv("BACKEND_CORS_ORIGINS", "").strip()
+_cors_origins = [o.strip() for o in _cors_env.split(",") if o.strip() and o.strip() != "*"] if _cors_env else [
     "http://localhost:4500",
     "http://localhost:3200",
     "http://localhost:3000",
-    "http://163.128.209.18:4500",
-    "https://pravah.blackholeinfiverse.com"
-]}})
+    "https://pravah.blackholeinfiverse.com",
+]
+CORS(app, resources={r"/*": {"origins": _cors_origins}})
 
 # Initialize rate limiter
 limiter = Limiter(
@@ -93,6 +95,13 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://",
 )
+
+# Application HTTP request telemetry middleware (streams non-sensitive latency and status to Observer)
+try:
+    from telemetry_client import setup_flask_telemetry
+    setup_flask_telemetry(app, service_name="control-plane")
+except Exception as _tel_exc:
+    logger.warning("Could not setup Flask telemetry: %s", _tel_exc)
 
 
 def _validate_runtime_payload(payload: dict) -> None:
@@ -116,11 +125,11 @@ def _event_type_from_contract(payload: dict) -> str:
 def _to_agent_event(payload: dict) -> dict:
     return {
         "trace_id": payload["trace_id"],  # [OK] ADD THIS
-        "event_id": f"runtime-{datetime.datetime.utcnow().timestamp()}",
+        "event_id": f"runtime-{datetime.now(timezone.utc).timestamp()}",
         "event_type": _event_type_from_contract(payload),
         "environment": payload["env"],
         "app_id": payload["app"],
-        "timestamp": datetime.datetime.utcnow().timestamp(),
+        "timestamp": datetime.now(timezone.utc).timestamp(),
         "data": {
             "state": payload["state"],
             "metrics": {
@@ -207,6 +216,7 @@ def runtime_decision():
         result = agent.handle_external_event(_to_agent_event(payload))
 
         # Forward telemetry to observer dashboard out-of-band
+        obs_port = 8600
         try:
             obs_port = int(os.getenv("PRAVAH_OBSERVER_PORT", "8600"))
             obs_host = os.getenv("PRAVAH_OBSERVER_HOST", "observer" if ENVIRONMENT == "prod" else "127.0.0.1")
@@ -313,14 +323,22 @@ def check_shakti_auth():
     if not auth_header or not auth_header.startswith("Bearer "):
         return False
     token = auth_header.split(" ")[1]
-    expected_token = os.getenv("PRAVAH_API_KEY", "shakti-secret-key-change-in-prod")
-    
+    expected_token = os.getenv("PRAVAH_API_KEY")
+    if not expected_token:
+        if ENVIRONMENT == "prod":
+            logger.error("PRAVAH_API_KEY is not set in production; rejecting auth")
+            return False
+        expected_token = "shakti-secret-key-change-in-prod"
+    elif ENVIRONMENT == "prod" and expected_token in {"shakti-secret-key-change-in-prod", "dev-key", "change-me"}:
+        logger.error("Insecure default PRAVAH_API_KEY detected in production; rejecting auth")
+        return False
+
     # Check X-Source-System header against allowed ecosystem sources
     source_system = request.headers.get("X-Source-System")
     allowed_sources = {"SHAKTI", "BHIV_MASTERDB", "WORKFLOW_BLACKHOLE", "UNIGURU"}
     if source_system not in allowed_sources:
         return False
-        
+
     return token == expected_token
 
 def load_evidence_bundles():
@@ -377,7 +395,7 @@ def shakti_events():
         "trace_id": payload["trace_id"],
         "event_type": payload["event_type"],
         "pipeline_latency_ms": 12,
-        "published_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+        "published_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     }
 
     try:
@@ -424,7 +442,7 @@ def shakti_publish_evidence():
 
     response_payload = {
         "evidence_ref": evidence_ref,
-        "published_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+        "published_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     }
 
     return jsonify(response_payload), 200
@@ -536,6 +554,24 @@ def prometheus_metrics():
         ])
     
     return "\n".join(metrics) + "\n", 200, {"Content-Type": "text/plain; version=0.0.4"}
+
+
+
+@app.route("/live", methods=["GET"])
+def liveness():
+    """Process liveness probe (HLTH-01)."""
+    return jsonify({"status": "alive", "service": "control-plane", "timestamp": datetime.now(timezone.utc).isoformat()}), 200
+
+
+@app.route("/ready", methods=["GET"])
+def readiness():
+    """Process readiness probe (HLTH-02)."""
+    return jsonify({
+        "status": "ready",
+        "service": "control-plane",
+        "environment": ENVIRONMENT,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }), 200
 
 
 if __name__ == "__main__":
