@@ -4,6 +4,12 @@ export interface ObservedService {
   latency_ms: number;
   detail: string;
   last_checked: string;
+  name?: string;
+  canonical_state?: string;
+  consecutive_failures?: number;
+  failure_reason?: string | null;
+  failure_category?: string;
+  last_successful_check?: string | null;
 }
 
 export interface TelemetryEvent {
@@ -12,6 +18,9 @@ export interface TelemetryEvent {
   status: string;
   detail: string;
   latency_ms: number;
+  http_status?: number | null;
+  failure_category?: string;
+  sanitized_detail?: string;
 }
 
 export interface EvidenceBundle {
@@ -309,4 +318,117 @@ export interface VanaRegion {
   observation_id: string;
   description: string;
   available: boolean;
+}
+
+
+// =============================================================================
+// Product Health & Observability Types (Requirements 1-7)
+// =============================================================================
+
+export type CanonicalServiceState = 'Healthy' | 'Degraded' | 'Unreachable' | 'Stale' | 'Not Monitored';
+
+export interface UnifiedProductItem {
+  name: string;
+  url: string;
+  status: CanonicalServiceState;
+  tier: 'product' | 'platform';
+  consecutive_failures: number;
+  last_successful_check: string | null;
+  last_checked: string | null;
+  failure_reason: string | null;
+  failure_category: string;
+  failure_duration_seconds: number;
+  http_status: number | null;
+  latency_p95_ms: number | null;
+  latency_avg_ms: number | null;
+  dependencies: string[];
+}
+
+export interface UnifiedProductHealthResponse {
+  timestamp: string;
+  products: UnifiedProductItem[];
+  platform_health: {
+    status: 'Healthy' | 'Degraded' | 'Unreachable';
+    services: UnifiedProductItem[];
+  };
+  traffic: TrafficSummary;
+  performance: PerformanceSummary;
+  active_incidents: IncidentItem[];
+  all_incidents: IncidentItem[];
+}
+
+export interface TrafficSummary {
+  total_requests: number;
+  success_2xx: number;
+  redirect_3xx: number;
+  client_error_4xx: number;
+  server_error_5xx: number;
+  error_rate_pct: number;
+  rps_1m: number;
+  rps_5m: number;
+  rps_1h: number;
+  hourly_trend: Array<{ hour: string; total: number; errors: number }>;
+  has_application_traffic?: boolean;
+  probe_total_requests?: number;
+  probe_rps_1m?: number;
+  probe_rps_5m?: number;
+  probe_rps_1h?: number;
+  probe_error_rate_pct?: number;
+  sources?: {
+    application: Record<string, any>;
+    probe: Record<string, any>;
+    agent: Record<string, any>;
+    synthetic: Record<string, any>;
+  };
+}
+
+export interface PerformanceSummary {
+  overall_avg_ms: number | null;
+  overall_p50_ms: number | null;
+  overall_p95_ms: number | null;
+  overall_p99_ms: number | null;
+  total_samples: number;
+  timeout_count: number;
+  has_application_data?: boolean;
+  probe_p50_ms?: number | null;
+  probe_p95_ms?: number | null;
+  probe_p99_ms?: number | null;
+  probe_timeout_count?: number;
+  probe_total_samples?: number;
+  slow_endpoints: Array<{
+    service: string;
+    p95_ms: number;
+    avg_ms: number | null;
+    sla_ms: number;
+    type?: string;
+  }>;
+  sources?: {
+    application: Record<string, any>;
+    probe: Record<string, any>;
+    agent: Record<string, any>;
+    synthetic: Record<string, any>;
+  };
+}
+
+export interface DependencyNode {
+  service: string;
+  product: string;
+  tier: 'product' | 'platform';
+  dependencies: Array<{
+    dependency: string;
+    status: CanonicalServiceState | string;
+    last_checked: string | null;
+  }>;
+}
+
+export interface IncidentItem {
+  incident_id: string;
+  started_at: string;
+  last_updated: string;
+  status: 'ACTIVE' | 'RESOLVED';
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  symptoms: string[];
+  affected_products: string[];
+  probable_source: string;
+  resolution: string | null;
 }

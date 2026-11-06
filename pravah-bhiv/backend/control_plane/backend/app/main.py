@@ -104,7 +104,6 @@ DEFAULT_APPROVED_CORS_ORIGINS: list[str] = [
     "http://localhost:4500",
     "http://localhost:3000",
     "http://localhost:8000",
-    "http://163.128.209.18:4500",
     "https://pravah.blackholeinfiverse.com",
 ]
 
@@ -200,6 +199,13 @@ app.add_middleware(
     CORSMiddleware,
     **get_cors_middleware_config(),
 )
+
+# Application HTTP request telemetry middleware (streams non-sensitive latency and status to Observer)
+try:
+    from telemetry_client import FastAPITelemetryMiddleware
+    app.add_middleware(FastAPITelemetryMiddleware, service_name="decision-brain")
+except Exception as _tel_exc:
+    logger.warning("Could not attach FastAPITelemetryMiddleware: %s", _tel_exc)
 
 
 # Startup event: Replay append-only journal to restore active monitored links

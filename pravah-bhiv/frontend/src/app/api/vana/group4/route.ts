@@ -1,13 +1,29 @@
 import { NextResponse } from 'next/server';
 
-const GROUP4_VANA_URL =
-  process.env.NEXT_PUBLIC_VANA_GROUP4_URL || 'http://163.128.209.18:8010';
+function getGroup4VanaUrl(): { url?: string; error?: string } {
+  const envUrl = process.env.VANA_GROUP4_URL;
+  const isProd = process.env.NODE_ENV === 'production' || process.env.ENVIRONMENT === 'prod';
+
+  if (!envUrl && isProd) {
+    return { error: 'Configuration Error: VANA_GROUP4_URL must be explicitly configured in production' };
+  }
+
+  return { url: envUrl || 'http://localhost:8010' };
+}
 
 export async function POST(request: Request) {
   try {
+    const { url: upstreamUrl, error: configError } = getGroup4VanaUrl();
+    if (configError || !upstreamUrl) {
+      return NextResponse.json(
+        { error: configError || 'VANA upstream URL unconfigured' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
-    
-    const res = await fetch(`${GROUP4_VANA_URL}/vana/execute`, {
+
+    const res = await fetch(`${upstreamUrl}/vana/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,14 +33,14 @@ export async function POST(request: Request) {
     });
 
     const data = await res.text();
-    
+
     if (!res.ok) {
       return NextResponse.json(
         { error: `Group 4 API Error: ${data}` },
         { status: res.status }
       );
     }
-    
+
     // Attempt to parse JSON response
     let jsonResp;
     try {

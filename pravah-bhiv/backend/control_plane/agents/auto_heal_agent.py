@@ -104,7 +104,7 @@ class AutoHealAgent(BaseAgent):
         # Guaranteed event emission - no silent failures
         from control_plane.core.guaranteed_events import emit_deploy_event
         try:
-            emit_deploy_event(self.env, status, response_time, dataset_path, strategy)
+            emit_deploy_event(self.env, status, response_time, dataset_path, strategy=strategy)
         except Exception as e:
             print(f"CRITICAL: Event emission failed for {strategy}: {e}")
             # Re-raise to ensure no silent failures

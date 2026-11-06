@@ -61,7 +61,7 @@ class RLOptimizer:
             'noop': 'retry_deployment'  # Default fallback
         }
         
-        action = action_mapping.get(decision['action'], 'retry_deployment')
+        action = action_mapping.get(str(decision['action']), 'retry_deployment')
         
         if StageDeterminismLock.is_stage_env(self.env):
             print(f"RL Optimizer (STAGE): Safe decision -> {action}")

@@ -9,7 +9,7 @@ import sys
 if os.getenv('RENDER') == 'true' or os.getenv('SKIP_SIMULATIONS') == 'true':
     print("⚠️  Skipping CI/CD simulation (production/Render environment detected)")
     print("✅ Use wsgi.py for Flask API server")
-    # Don't import anything or execute further - just define empty module
+    sys.exit(0)
 else:
     # Only import if NOT on Render
     from agents.deploy_agent import DeployAgent

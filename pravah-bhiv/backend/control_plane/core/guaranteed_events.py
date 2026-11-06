@@ -198,3 +198,18 @@ def emit_runtime_event(env: str, event_type: str, status: str, response_time: fl
     RuntimeEventEmissionLock.emit_runtime_event(
         env, event_type, status, response_time, dataset, **kwargs
     )
+
+class GuaranteedEmitter:
+    """Convenience emitter adapter."""
+    def __init__(self, env: str, redis_bus=None, metrics=None):
+        self.env = env
+        self.redis_bus = redis_bus
+        self.metrics = metrics
+
+    def emit_runtime_event(self, event_type: str, status: str, response_time: float, dataset: str = "system", **kwargs):
+        actual_type = event_type if event_type in RuntimeEventEmissionLock.REQUIRED_EVENTS else "crash"
+        RuntimeEventEmissionLock.emit_runtime_event(self.env, actual_type, status, response_time, dataset, **kwargs)
+
+def get_guaranteed_emitter(env: str, redis_bus=None, metrics=None) -> GuaranteedEmitter:
+    """Get guaranteed event emitter instance."""
+    return GuaranteedEmitter(env, redis_bus, metrics)

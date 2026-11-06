@@ -50,7 +50,7 @@ class EnvironmentConfig:
             'db_host': os.getenv('DB_HOST', '127.0.0.1'),
             'db_port': int(os.getenv('DB_PORT', 5432)),
             'redis_host': os.getenv('REDIS_HOST', 'redis'),
-            'redis_port': int(os.getenv('REDIS_PORT', 6380 if self.env == 'prod' else 6379)),
+            'redis_port': int(os.getenv('REDIS_PORT', 6379)),
             'redis_db': int(os.getenv('REDIS_DB', 2 if self.env == 'prod' else 0)),
             'deployment_timeout': int(os.getenv('DEPLOYMENT_TIMEOUT', 30)),
             'retry_count': int(os.getenv('RETRY_COUNT', 3)),

@@ -21,6 +21,18 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from health_engine import (
+    ServiceHealthTracker,
+    ServiceState,
+    FailureCategory,
+    sanitize_html_detail,
+)
+
+health_tracker = ServiceHealthTracker(
+    poll_interval_sec=float(os.getenv("HEALTH_CHECK_INTERVAL", "10")),
+    sla_latency_ms=float(os.getenv("SLA_LATENCY_MS", "500")),
+)
+
 # ---------------------------------------------------------------------------
 # Configuration from environment (set by observer_launcher.py)
 # ---------------------------------------------------------------------------
@@ -79,14 +91,31 @@ observation_store: Dict[str, Any] = {
 store_lock = threading.Lock()
 
 
-def _record_event(service: str, status: str, detail: str = "", latency_ms: float = 0):
-    """Append an observation event (thread-safe)."""
+def _record_event(
+    service: str,
+    status: str,
+    detail: str = "",
+    latency_ms: float = 0,
+    http_status: Optional[int] = None,
+    content_type: Optional[str] = None,
+    failure_category: Optional[str] = None,
+    last_successful_check: Optional[str] = None,
+    consecutive_failures: int = 0,
+    failure_duration_seconds: float = 0.0,
+):
+    """Append an observation event with rich diagnostic telemetry (thread-safe)."""
     event = {
         "ts": datetime.utcnow().isoformat(),
         "service": service,
         "status": status,
         "detail": detail,
         "latency_ms": round(latency_ms, 1),
+        "http_status": http_status,
+        "content_type": content_type or "application/json",
+        "failure_category": failure_category or FailureCategory.NONE.value,
+        "last_successful_check": last_successful_check,
+        "consecutive_failures": consecutive_failures,
+        "failure_duration_seconds": round(failure_duration_seconds, 1),
     }
     with store_lock:
         observation_store["events"].append(event)
@@ -95,43 +124,74 @@ def _record_event(service: str, status: str, detail: str = "", latency_ms: float
 
 
 def _probe_service(name: str, health_url: str, url: str):
-    """Probe a single service endpoint and record the result."""
+    """Probe a single service endpoint and record canonical health & telemetry."""
     import requests as _req
 
     start = time.time()
+    resp = None
+    http_status = None
+    content_type = None
+    raw_detail = ""
+    error_type = None
+    ok = False
+    tier = "platform" if name in ["control-plane", "decision-brain", "observer", "redis"] else "product"
+
     try:
-        resp = _req.get(health_url, timeout=3)
+        resp = _req.get(
+            health_url,
+            timeout=3,
+            headers={
+                "User-Agent": "Pravah-Observer-Probe/1.0",
+                "X-Pravah-Source": "probe",
+            },
+        )
         latency = (time.time() - start) * 1000
+        http_status = resp.status_code
+        content_type = resp.headers.get("content-type", "")
         ok = resp.status_code < 400
-        detail = ""
         try:
-            detail = json.dumps(resp.json())[:200]
+            raw_detail = json.dumps(resp.json())[:300]
         except Exception:
-            detail = resp.text[:200]
-        status = "healthy" if ok else "degraded"
+            raw_detail = resp.text[:300]
     except _req.ConnectionError:
         latency = (time.time() - start) * 1000
-        status = "unreachable"
-        detail = "connection refused"
+        error_type = "connection_refused"
+        raw_detail = "Connection refused"
     except _req.Timeout:
         latency = (time.time() - start) * 1000
-        status = "timeout"
-        detail = "request timed out"
+        error_type = "timeout"
+        raw_detail = "Request timed out after 3.0s"
     except Exception as exc:
         latency = (time.time() - start) * 1000
-        status = "error"
-        detail = str(exc)[:200]
+        error_type = "unknown"
+        raw_detail = str(exc)[:200]
 
     with store_lock:
-        observation_store["services"][name] = {
-            "url": url,
-            "status": status,
-            "latency_ms": round(latency, 1),
-            "detail": detail,
-            "last_checked": datetime.utcnow().isoformat(),
-        }
+        svc_record = health_tracker.record_probe_result(
+            name=name,
+            url=url,
+            ok=ok,
+            http_status=http_status,
+            raw_detail=raw_detail,
+            latency_ms=latency,
+            error_type=error_type,
+            content_type=content_type,
+            tier=tier,
+        )
+        observation_store["services"][name] = svc_record
 
-    _record_event(name, status, detail, latency)
+    _record_event(
+        service=name,
+        status=svc_record["status"],
+        detail=svc_record.get("failure_reason") or sanitize_html_detail(raw_detail, http_status),
+        latency_ms=latency,
+        http_status=http_status,
+        content_type=content_type,
+        failure_category=svc_record.get("failure_category"),
+        last_successful_check=svc_record.get("last_successful_check"),
+        consecutive_failures=svc_record.get("consecutive_failures", 0),
+        failure_duration_seconds=svc_record.get("failure_duration_seconds", 0.0),
+    )
 
 
 def _poll_loop(interval: float = 10.0):
@@ -347,9 +407,18 @@ app = FastAPI(
     version="1.0.0",
 )
 
+_cors_env = os.getenv("BACKEND_CORS_ORIGINS", "").strip()
+_cors_origins = [o.strip() for o in _cors_env.split(",") if o.strip() and o.strip() != "*"] if _cors_env else [
+    "http://localhost:4500",
+    "http://localhost:3200",
+    "http://localhost:3000",
+    "https://pravah.blackholeinfiverse.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -375,11 +444,90 @@ def health():
 @app.get("/api/status")
 def api_status():
     with store_lock:
+        health_tracker.check_staleness()
+        services = health_tracker.services or observation_store["services"]
+        summary = {
+            "total": len(services),
+            "healthy": sum(1 for s in services.values() if s.get("status") == ServiceState.HEALTHY.value),
+            "degraded": sum(1 for s in services.values() if s.get("status") == ServiceState.DEGRADED.value),
+            "unreachable": sum(1 for s in services.values() if s.get("status") == ServiceState.UNREACHABLE.value),
+            "stale": sum(1 for s in services.values() if s.get("status") == ServiceState.STALE.value),
+            "not_monitored": sum(1 for s in services.values() if s.get("status") == ServiceState.NOT_MONITORED.value),
+        }
         return JSONResponse(content={
             "started_at": observation_store["started_at"],
             "poll_count": observation_store["poll_count"],
-            "services": observation_store["services"],
+            "services": services,
+            "summary": summary,
         })
+
+
+@app.get("/api/products/unified-health")
+def api_unified_product_health():
+    """Unified Product Health view separating platform from product tiers (Requirement 5)."""
+    with store_lock:
+        data = health_tracker.get_unified_product_health()
+    return JSONResponse(content=data)
+
+
+@app.get("/api/metrics/traffic")
+def api_traffic_metrics():
+    """Traffic Monitoring with total count, RPS, status distribution, and error rate (Requirement 3)."""
+    with store_lock:
+        data = health_tracker.get_traffic_summary()
+    return JSONResponse(content=data)
+
+
+@app.get("/api/metrics/performance")
+def api_performance_metrics():
+    """Performance Monitoring with P50/P95/P99 latency, timeouts, and slow endpoints (Requirement 4)."""
+    with store_lock:
+        data = health_tracker.get_performance_summary()
+    return JSONResponse(content=data)
+
+
+@app.get("/api/dependencies/graph")
+def api_dependency_graph():
+    """Dependency topology with cascading failure status (Requirement 6)."""
+    with store_lock:
+        topology = health_tracker.dep_graph.get_full_topology(health_tracker.services)
+    return JSONResponse(content={"topology": topology, "count": len(topology)})
+
+
+@app.get("/api/incidents")
+def api_incidents():
+    """Correlated incidents across temporal anomaly windows (Requirement 7)."""
+    with store_lock:
+        traffic = health_tracker.traffic_monitor.get_summary()
+        perf = health_tracker.get_performance_summary()
+        incidents = health_tracker.incident_engine.evaluate(
+            health_tracker.services, traffic, perf, health_tracker.dep_graph
+        )
+    return JSONResponse(content={"incidents": incidents, "total": len(incidents)})
+
+
+@app.get("/live")
+def liveness_check():
+    """Process liveness probe (HLTH-01)."""
+    return JSONResponse(content={
+        "status": "alive",
+        "service": "observer",
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
+
+@app.get("/ready")
+def readiness_check():
+    """Process readiness probe (HLTH-02)."""
+    with store_lock:
+        poll_count = observation_store["poll_count"]
+    return JSONResponse(content={
+        "status": "ready",
+        "service": "observer",
+        "poll_count": poll_count,
+        "services_tracked": len(health_tracker.services),
+        "timestamp": datetime.utcnow().isoformat()
+    })
 
 
 @app.get("/api/events")
@@ -433,14 +581,40 @@ def api_metrics():
 
 @app.post("/api/ingest")
 async def ingest_event(request: Request):
-    """Accept external telemetry events pushed by observed services."""
+    """
+    Accept external telemetry events pushed by observed services and feed isolated metrics.
+    Categorizes events by source: application, probe, agent, synthetic.
+    """
     body = await request.json()
+    data = body.get("data") or {}
+    service = body.get("service", "unknown")
+    status = body.get("status", "info")
+    method = body.get("method") or "POST"
+    endpoint = body.get("endpoint") or "/"
+    latency_ms = float(body.get("latency_ms") or data.get("latency_ms") or body.get("duration_ms") or 0.0)
+    http_status = int(body.get("http_status") or (200 if status not in ["error", "degraded", "unreachable"] else 500))
+    source = body.get("source") or ("agent" if (data.get("decision") or data.get("trace_id")) else "application")
+    ts = float(body.get("timestamp") or time.time())
+
+    with store_lock:
+        health_tracker.record_application_request(
+            service=service,
+            method=method,
+            endpoint=endpoint,
+            http_status=http_status,
+            latency_ms=latency_ms,
+            timestamp=ts,
+            source=source,
+        )
+
     _record_event(
-        service=body.get("service", "unknown"),
-        status=body.get("status", "info"),
-        detail=json.dumps(body.get("data", {}))[:300],
+        service=service,
+        status=status,
+        detail=json.dumps(data)[:300] if data else f"{method} {endpoint} -> HTTP {http_status} ({latency_ms:.1f}ms)",
+        latency_ms=latency_ms,
+        http_status=http_status,
     )
-    return {"accepted": True}
+    return {"accepted": True, "source": source}
 
 
 # ---- HTML Dashboard -------------------------------------------------------

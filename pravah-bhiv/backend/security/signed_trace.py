@@ -9,12 +9,67 @@ import uuid
 from dataclasses import asdict, dataclass
 from typing import Any, Mapping
 
-_key = os.getenv("LINEAGE_SIGNING_KEY")
-if not _key:
-    if os.getenv("ENVIRONMENT", "").strip().lower() == "prod":
-        raise ValueError("LINEAGE_SIGNING_KEY must be set in production")
-    _key = "pravah-sovereign-lineage-key"
-SECRET_KEY = _key.encode("utf-8")
+KNOWN_DEV_FALLBACK_KEYS = {
+    'default-jwt-secret-change-in-prod',
+    'default-secret-key-change-in-prod',
+    'pravah-sovereign-lineage-key',
+    'dev-key',
+    'change-me',
+    'secret',
+    'shakti-secret-key-change-in-prod',
+    'default-secret-key',
+}
+
+def _is_placeholder_or_fallback(secret: str | None) -> bool:
+    if secret is None or not secret.strip():
+        return True
+    s = secret.strip()
+    if s in KNOWN_DEV_FALLBACK_KEYS:
+        return True
+    if s.startswith('##') and s.endswith('##'):
+        return True
+    lower = s.lower()
+    if any(m in lower for m in ('change-in-prod', 'placeholder', 'will_be_injected', 'your-secret-here')):
+        return True
+    return False
+
+def _normalize_and_validate_environment(env_str: str | None) -> tuple[str, bool]:
+    if env_str is None or not env_str.strip():
+        return 'dev', False
+    raw = env_str.strip().lower()
+    if raw in ('dev', 'development', 'local', 'test'):
+        return 'dev', False
+    elif raw in ('stage', 'staging'):
+        return 'stage', True
+    elif raw in ('prod', 'production'):
+        return 'prod', True
+    else:
+        raise ValueError(
+            f"Invalid or unsupported ENVIRONMENT '{env_str}'. Must be one of: dev, stage, prod (or development, staging, production)."
+        )
+
+def _resolve_lineage_key(raw_key: str | None = None) -> bytes:
+    raw_env = os.getenv("ENVIRONMENT")
+    norm_env, is_enforced = _normalize_and_validate_environment(raw_env)
+
+    k = raw_key if raw_key is not None else os.getenv("LINEAGE_SIGNING_KEY")
+
+    if is_enforced:
+        if _is_placeholder_or_fallback(k):
+            if norm_env == "prod":
+                raise ValueError("LINEAGE_SIGNING_KEY must be set in production (cannot be empty, default fallback, or placeholder)")
+            else:
+                raise ValueError("LINEAGE_SIGNING_KEY must be set in staging (cannot be empty, default fallback, or placeholder)")
+    else:
+        if not k or not k.strip():
+            k = "pravah-sovereign-lineage-key"
+
+    if k is None:
+        k = "pravah-sovereign-lineage-key"
+
+    return k.strip().encode("utf-8")
+
+SECRET_KEY = _resolve_lineage_key()
 
 
 def make_canonical(obj: Any) -> Any:

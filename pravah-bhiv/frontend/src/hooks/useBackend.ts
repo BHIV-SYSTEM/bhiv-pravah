@@ -155,3 +155,43 @@ export function usePostOverride() {
     },
   });
 }
+
+
+export function useUnifiedProductHealth(refetchInterval = 5000) {
+  return useQuery({
+    queryKey: ['unifiedProductHealth'],
+    queryFn: api.getUnifiedProductHealth,
+    refetchInterval,
+  });
+}
+
+export function useTrafficMetrics(refetchInterval = 5000) {
+  return useQuery({
+    queryKey: ['trafficMetrics'],
+    queryFn: api.getTrafficMetrics,
+    refetchInterval,
+  });
+}
+
+export function usePerformanceMetrics(refetchInterval = 5000) {
+  return useQuery({
+    queryKey: ['performanceMetrics'],
+    queryFn: api.getPerformanceMetrics,
+    refetchInterval,
+  });
+}
+
+export function useDependencyTopology() {
+  return useQuery({
+    queryKey: ['dependencyTopology'],
+    queryFn: api.getDependencyTopology,
+  });
+}
+
+export function useIncidents(refetchInterval = 5000) {
+  return useQuery({
+    queryKey: ['incidents'],
+    queryFn: api.getIncidents,
+    refetchInterval,
+  });
+}
