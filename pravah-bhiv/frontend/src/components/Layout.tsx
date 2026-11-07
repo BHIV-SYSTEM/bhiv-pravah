@@ -1,5 +1,5 @@
 'use client';
-
+ 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -146,7 +146,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Cmd+K Search trigger */}
           <button 
             onClick={toggleCommandPalette}
-            className="flex items-center gap-3 px-5 py-2.5 text-sm text-muted-foreground bg-secondary/80 hover:bg-secondary border border-border rounded-xl transition-colors font-mono select-none shadow-sm cursor-pointer"
+            className="flex items-center gap-3 px-5 py-2.5 text-sm text-muted-foreground bg-secondary/80 hover:bg-secondary border border-border rounded-xl transition-colors font-mono select-none"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="md:inline hidden">Search console...</span>
@@ -204,7 +204,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Link 
                   key={item.name} 
                   href={item.href}
-                  className={`flex items-center justify-between px-4.5 py-3 rounded-xl text-sm transition-all duration-150 group ${isActive ? 'bg-primary/10 text-primary font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]' : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'}`}
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-150 group ${isActive ? 'bg-primary/10 text-primary font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]' : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'}`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className={`w-4 h-4 group-hover:scale-105 transition-transform ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
