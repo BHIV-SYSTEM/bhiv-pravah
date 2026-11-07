@@ -1,2 +1,10 @@
 __pycache__/
 *.py[cod]
+
+# Environment files & secrets
+.env
+.env.*
+*.env
+!.env.example
+!.env.*.example
+!*.env.example

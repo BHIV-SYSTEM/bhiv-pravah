@@ -1,1 +1,12 @@
 multi-agent-control-plane-main.zip
+
+# Environment files & secrets
+.env
+.env.*
+.env.frontend
+*.env
+environments/*.env
+!.env.example
+!.env.*.example
+!*.env.example
+!environments/*.env.example

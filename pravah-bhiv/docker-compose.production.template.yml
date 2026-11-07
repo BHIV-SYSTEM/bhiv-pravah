@@ -3,20 +3,23 @@ services:
     image: redis:7-alpine
     container_name: pravah_redis
     ports:
-      - "6380:6380"
+      - "127.0.0.1:6380:6380"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: >
-      redis-server
+      sh -c "exec redis-server
       --port 6380
+      $${REDIS_PASSWORD:+--requirepass \"$$REDIS_PASSWORD\"}
       --appendonly yes
       --maxmemory 512mb
       --maxmemory-policy allkeys-lru
       --save 60 1000
-      --loglevel notice
+      --loglevel notice"
     volumes:
       - redis_data:/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "-p", "6380", "ping"]
+      test: ["CMD-SHELL", "redis-cli -p 6380 $${REDIS_PASSWORD:+-a \"$$REDIS_PASSWORD\"} ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,6 +37,7 @@ services:
       - ENVIRONMENT=prod
       - REDIS_HOST=redis
       - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - PRAVAH_MAIN_API=http://decision-brain:8000
       - DECISION_BRAIN_PORT=8000
       - PRAVAH_OBSERVER_HOST=observer
@@ -75,6 +79,7 @@ services:
       - ENVIRONMENT=prod
       - REDIS_HOST=redis
       - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - PRAVAH_MAIN_API=http://decision-brain:8000
       - DECISION_BRAIN_PORT=8000
       - SSPL_SECRET_KEY=${SSPL_SECRET_KEY}
@@ -138,6 +143,7 @@ services:
       - WORKER_ID=1
       - REDIS_HOST=redis
       - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: python -m control_plane.agents.multi_deploy_agent --env prod --workers 1
     volumes:
       - ./logs:/app/logs
@@ -156,6 +162,7 @@ services:
       - WORKER_ID=2
       - REDIS_HOST=redis
       - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: python -m control_plane.agents.multi_deploy_agent --env prod --workers 1
     volumes:
       - ./logs:/app/logs
@@ -174,6 +181,7 @@ services:
       - WORKER_ID=3
       - REDIS_HOST=redis
       - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: python -m control_plane.agents.multi_deploy_agent --env prod --workers 1
     volumes:
       - ./logs:/app/logs
@@ -191,6 +199,7 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: python -m monitoring.queue_monitor --continuous --cycles 0
     volumes:
       - ./logs:/app/logs
@@ -207,6 +216,8 @@ services:
       - .env
     environment:
       - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: python -m monitoring.infra_health_monitor --env prod --continuous
     volumes:
       - ./logs:/app/logs
@@ -241,7 +252,7 @@ services:
     image: prom/prometheus:v2.54.1
     container_name: pravah_prometheus
     ports:
-      - "9093:9090"
+      - "127.0.0.1:9093:9090"
     volumes:
       - ./backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus

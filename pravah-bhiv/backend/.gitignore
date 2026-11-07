@@ -83,3 +83,6 @@ __pycache__/
 *.log
 logs/
 .env
+
+environments/*.env
+!environments/*.env.example
