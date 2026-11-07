@@ -59,7 +59,7 @@ class LineagePersistenceCorruptionError(ReplayIntegrityError):
 
 
 def _event_dict(event: Mapping[str, Any] | Any) -> Dict[str, Any]:
-    if is_dataclass(event):
+    if is_dataclass(event) and not isinstance(event, type):
         return asdict(event)
     if isinstance(event, Mapping):
         return dict(event)
@@ -67,7 +67,7 @@ def _event_dict(event: Mapping[str, Any] | Any) -> Dict[str, Any]:
 
 
 def _payload_dict(payload: Mapping[str, Any] | Any) -> Dict[str, Any]:
-    if is_dataclass(payload):
+    if is_dataclass(payload) and not isinstance(payload, type):
         return asdict(payload)
     if isinstance(payload, Mapping):
         return dict(payload)
@@ -133,12 +133,13 @@ class LineageVerifier:
         Raises UnsignedReplayEventError/ReplayIntegrityError if any signature is invalid.
         """
         for ev in journal_events:
+            raw_ts = ev.get("timestamp")
             sig_event = {
                 "trace_id": ev.get("event_id"),
                 "execution_id": ev.get("execution_id"),
                 "parent_hash": ev.get("previous_hash"),
                 "payload_hash": ev.get("event_hash"),
-                "timestamp": float(ev.get("timestamp")) if ev.get("timestamp") is not None else None,
+                "timestamp": float(raw_ts) if raw_ts is not None else None,
                 "signer": ev.get("source"),
                 "signature": ev.get("details", {}).get("signature") if ev.get("details") else None,
             }

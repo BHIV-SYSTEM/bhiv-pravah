@@ -16,7 +16,7 @@ import sys
 import threading
 import time
 from collections import Counter
-from typing import Any
+from typing import Any, Protocol
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SCRIPT_DIR)
@@ -26,6 +26,30 @@ if REPO_ROOT not in sys.path:
 from agent_runtime import AgentRuntime
 from monitoring.consumer import consume_stream
 from pravah_stream.stream import clear_stream, read_stream
+
+
+class DemoEventArgs(Protocol):
+    trace_id: str
+    app_id: str
+    event_type: str
+    cpu_percent: float
+    memory_percent: float
+    error_rate: float
+    workers: int
+
+
+class SystemFlowArgs(argparse.Namespace):
+    start_services: bool
+    services: list[str]
+    env: str
+    trace_id: str
+    app_id: str
+    event_type: str
+    cpu_percent: float
+    memory_percent: float
+    error_rate: float
+    workers: int
+    post_run_wait: float
 
 
 def _start_services(services: list[str]) -> None:
@@ -64,7 +88,7 @@ def _watch_pravah_stream(stop_event: threading.Event, poll_interval: float = 0.2
         time.sleep(poll_interval)
 
 
-def _build_demo_event(args: argparse.Namespace) -> dict[str, Any]:
+def _build_demo_event(args: DemoEventArgs) -> dict[str, Any]:
     return {
         "trace_id": args.trace_id,
         "app_id": args.app_id,
@@ -104,7 +128,7 @@ def main() -> int:
     parser.add_argument("--error-rate", type=float, default=0.0, help="Error rate for the demo event")
     parser.add_argument("--workers", type=int, default=1, help="Worker count for the demo event")
     parser.add_argument("--post-run-wait", type=float, default=1.0, help="Seconds to wait after execution before final snapshot")
-    args = parser.parse_args()
+    args = parser.parse_args(namespace=SystemFlowArgs())
 
     if args.start_services:
         _start_services(args.services)

@@ -99,7 +99,7 @@ def test_5_and_7_failure_surfaced(mock_post, mock_governance, mock_redis):
         
         # We need to capture the decision reaching explain
         last_decision = {}
-        def mock_explain(decision, action, observation):
+        def mock_explain(decision, action_result, observation):
             nonlocal last_decision
             last_decision = decision
             agent._last_decision = {"decision": decision}

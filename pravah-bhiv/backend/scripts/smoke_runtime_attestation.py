@@ -29,8 +29,18 @@ print('contract.execution_hash:', contract.execution_hash)
 
 # replay
 r = replay_execution_lineage(contract.execution_id)
-print('replay contains runtime_attestation in approved event:', any(e.get('details',{}).get('runtime_attestation') for e in r['events']))
-if len(r.get('events'))>1:
-    print('replay runtime_attestation:', r.get('events')[1].get('details').get('runtime_attestation'))
+events = r.get('events') or []
+
+def _has_attestation(event: object) -> bool:
+    if isinstance(event, dict):
+        details = event.get('details')
+        if isinstance(details, dict):
+            return bool(details.get('runtime_attestation'))
+    return False
+
+print('replay contains runtime_attestation in approved event:', any(_has_attestation(e) for e in events))
+second_details = events[1].get('details') if len(events) > 1 and isinstance(events[1], dict) else None
+if isinstance(second_details, dict) and second_details.get('runtime_attestation'):
+    print('replay runtime_attestation:', second_details.get('runtime_attestation'))
 else:
-    print('no events')
+    print('no events or runtime_attestation missing from details')

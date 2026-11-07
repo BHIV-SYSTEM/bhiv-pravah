@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from contracts.decision_contract import DecisionContract
 from control_plane.decision_translation.contextual_result_adapter import ContextualResultAdapter
-from control_plane.decision_translation.group4_intake import Group4IntakeBoundary, ActionRequestRecorder
+from control_plane.decision_translation.group4_intake import Group4IntakeBoundary, ActionRequestRecorder, ActionRequest
 from control_plane.core.action_governance import GovernanceDecision
 from pydantic import ValidationError
 
@@ -29,6 +29,7 @@ def test_1_valid_allow_produces_action_request(exact_input_fixture):
     approved = GovernanceDecision(should_block=False, policy_id="p1", policy_version="v1", admission_state="POLICY_ADMITTED")
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar = intake.process(contract)
+        assert isinstance(ar, ActionRequest)
         assert ar.status == "VALIDATED"
         assert ar.action_request_id.startswith("ar-")
 
@@ -40,6 +41,7 @@ def test_2_exact_lineage_is_preserved(exact_input_fixture):
     approved = GovernanceDecision(should_block=False, policy_id="p1", policy_version="v1", admission_state="POLICY_ADMITTED")
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar = intake.process(contract)
+        assert isinstance(ar, ActionRequest)
         assert ar.lineage.observation_id == "TC-Z03-F02-LIDAR-OBS001"
         assert ar.lineage.canonical_record_id == "group1-obs-20260813-9a3b"
         assert ar.lineage.context_id == "ctx-tc-001"
@@ -51,6 +53,7 @@ def test_3_temporal_allow_fields_preserved(exact_input_fixture):
     approved = GovernanceDecision(should_block=False, policy_id="p1", policy_version="v1", admission_state="POLICY_ADMITTED")
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar = intake.process(contract)
+        assert isinstance(ar, ActionRequest)
         assert ar.temporal_ruling.ruling == "ALLOW"
         assert ar.temporal_ruling.action_eligibility is True
         assert ar.temporal_ruling.abstention_required is False
@@ -62,6 +65,7 @@ def test_4_evidence_classification_is_controlled(exact_input_fixture):
     approved = GovernanceDecision(should_block=False, policy_id="p1", policy_version="v1", admission_state="POLICY_ADMITTED")
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar = intake.process(contract)
+        assert isinstance(ar, ActionRequest)
         assert ar.evidence_classification == "CONTROLLED"
 
 # --- B. Determinism and idempotency ---
@@ -74,6 +78,8 @@ def test_5_same_input_twice_produces_equivalent_validated_lineage(exact_input_fi
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar1 = intake.process(contract)
         ar2 = intake.process(contract)
+        assert isinstance(ar1, ActionRequest)
+        assert isinstance(ar2, ActionRequest)
         assert ar1.action_request_id == ar2.action_request_id
 
 def test_6_duplicate_delivery_does_not_create_second_record(exact_input_fixture, tmp_path):
@@ -145,6 +151,7 @@ def test_13_physical_evidence_classification_is_rejected(exact_input_fixture):
     approved = GovernanceDecision(should_block=False, policy_id="p1", policy_version="v1", admission_state="POLICY_ADMITTED")
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar = intake.process(contract)
+        assert isinstance(ar, ActionRequest)
         with pytest.raises(ValidationError):
             ar.evidence_classification = "PHYSICAL"
 
@@ -155,6 +162,7 @@ def test_14_live_evidence_classification_is_rejected(exact_input_fixture):
     approved = GovernanceDecision(should_block=False, policy_id="p1", policy_version="v1", admission_state="POLICY_ADMITTED")
     with patch("control_plane.decision_translation.group4_intake.ActionGovernance.evaluate_contract", return_value=approved):
         ar = intake.process(contract)
+        assert isinstance(ar, ActionRequest)
         with pytest.raises(ValidationError):
             ar.evidence_classification = "LIVE"
 
@@ -173,7 +181,9 @@ def test_15_retrieval_preserves_original_validated_lineage_without_mutation(exac
          patch("control_plane.decision_translation.group4_intake.ActionRequestRecorder", return_value=recorder):
          
          ar_created = intake.process(contract)
+         assert isinstance(ar_created, ActionRequest)
          ar_retrieved = recorder.retrieve(ar_created.action_request_id)
+         assert isinstance(ar_retrieved, ActionRequest)
          
          assert ar_retrieved.lineage.observation_id == ar_created.lineage.observation_id
          assert ar_retrieved.lineage.canonical_record_id == ar_created.lineage.canonical_record_id
