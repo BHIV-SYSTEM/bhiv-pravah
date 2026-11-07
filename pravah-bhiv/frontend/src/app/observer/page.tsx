@@ -147,14 +147,14 @@ export default function Observer() {
         {filteredServices.length > 0 ? (
           filteredServices.map((svc, idx) => (
             <div key={idx} className="premium-card flex flex-col justify-between gap-3 h-48 select-none group">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-[11px] text-foreground uppercase tracking-wide truncate max-w-[120px]">{svc.name}</span>
-                  <span className={getStatusClass(svc.status)}>
-                    {svc.status}
-                  </span>
-                </div>
-                <span className="text-[9px] text-muted-foreground truncate font-mono select-all bg-secondary/35 px-1.5 py-0.5 rounded border border-border/40 mt-1">
+              <div className="flex flex-col gap-1.5">
+                <span className="font-extrabold text-[11px] text-foreground uppercase tracking-wide truncate" title={svc.name}>
+                  {svc.name}
+                </span>
+                <span className={`${getStatusClass(svc.status)} w-fit self-start`}>
+                  {svc.status}
+                </span>
+                <span className="text-[9px] text-muted-foreground truncate font-mono select-all bg-secondary/35 px-1.5 py-0.5 rounded border border-border/40">
                   {svc.url}
                 </span>
               </div>
