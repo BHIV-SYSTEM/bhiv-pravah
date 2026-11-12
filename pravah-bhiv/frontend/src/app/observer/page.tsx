@@ -59,6 +59,16 @@ export default function Observer() {
     return matchesSearch && matchesStatus;
   });
 
+  const formatCheckedTime = (timestamp: string | null | undefined): string => {
+    if (!timestamp) return 'N/A';
+    try {
+      const d = new Date(timestamp);
+      return isNaN(d.getTime()) ? 'N/A' : d.toLocaleTimeString();
+    } catch {
+      return 'N/A';
+    }
+  };
+
   const getStatusClass = (status: string) => {
     switch (status.toLowerCase()) {
       case 'healthy': return 'status-pill healthy';
@@ -169,7 +179,7 @@ export default function Observer() {
 
               {/* Footer */}
               <div className="flex justify-between items-center text-[8px] text-muted-foreground border-t border-border/40 pt-2 font-mono">
-                <span>CHECKED {new Date(svc.last_checked + 'Z').toLocaleTimeString()}</span>
+                <span>CHECKED {formatCheckedTime(svc.last_checked)}</span>
                 {svc.detail && svc.detail !== 'connection refused' && svc.detail !== 'request timed out' && (
                   <span className="cursor-pointer hover:text-foreground underline truncate max-w-[80px]" title={svc.detail}>Payload Response</span>
                 )}

@@ -1,5 +1,5 @@
 'use client';
- 
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -41,9 +41,16 @@ interface SidebarItem {
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { sidebarOpen, toggleSidebar, notifications, toggleCommandPalette } = useUiStore();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen, notifications, toggleCommandPalette } = useUiStore();
   const [notifOpen, setNotifOpen] = useState(false);
   const [darkTheme, setDarkTheme] = useState(true);
+
+  // Auto-close on mobile screens on initial load and route change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  }, [pathname, setSidebarOpen]);
 
   // Sync initial theme
   useEffect(() => {
@@ -109,7 +116,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-3">
           <button 
             onClick={toggleSidebar} 
-            className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors md:flex hidden"
+            className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Toggle navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -146,7 +154,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Cmd+K Search trigger */}
           <button 
             onClick={toggleCommandPalette}
-            className="flex items-center gap-3 px-5 py-2.5 text-sm text-muted-foreground bg-secondary/80 hover:bg-secondary border border-border rounded-xl transition-colors font-mono select-none"
+            className="flex items-center gap-3 px-5 py-2.5 text-sm text-muted-foreground bg-secondary/80 hover:bg-secondary border border-border rounded-xl transition-colors font-mono select-none shadow-sm cursor-pointer"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="md:inline hidden">Search console...</span>
@@ -188,12 +196,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {/* Mobile Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 md:hidden transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Main Container */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         
-        {/* Left Sidebar */}
+        {/* Sidebar (Desktop Collapsible & Mobile Drawer) */}
         <aside 
-          className={`border-r border-border bg-card shrink-0 select-none z-30 transition-all duration-300 flex flex-col justify-between ${sidebarOpen ? 'w-60' : 'w-0 -translate-x-full md:w-16 md:translate-x-0'}`}
+          className={`border-r border-border bg-card shrink-0 select-none transition-all duration-300 flex flex-col justify-between
+            fixed inset-y-0 left-0 top-16 z-50 md:top-0 md:relative md:z-30
+            ${sidebarOpen ? 'w-64 translate-x-0 shadow-2xl md:shadow-none md:w-60' : '-translate-x-full md:translate-x-0 md:w-16'}
+          `}
         >
           {/* Main Links */}
           <div className="py-4 px-3 overflow-y-auto flex-1 flex flex-col gap-1.5">
@@ -204,7 +224,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Link 
                   key={item.name} 
                   href={item.href}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-150 group ${isActive ? 'bg-primary/10 text-primary font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]' : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'}`}
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                      setSidebarOpen(false);
+                    }
+                  }}
+                  className={`flex items-center justify-between px-4.5 py-3 rounded-xl text-sm transition-all duration-150 group ${isActive ? 'bg-primary/10 text-primary font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]' : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'}`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className={`w-4 h-4 group-hover:scale-105 transition-transform ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -231,7 +256,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Main Workspace content */}
-        <main className="flex-1 overflow-y-auto p-6 bg-background relative flex flex-col">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-background relative flex flex-col min-w-0">
           {children}
         </main>
       </div>

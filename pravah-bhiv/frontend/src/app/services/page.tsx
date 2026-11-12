@@ -90,46 +90,48 @@ export default function Services() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[10px] divide-y divide-border">
+        <div className="overflow-x-auto -mx-1 px-1">
+          <table className="w-full text-left text-[10px] divide-y divide-border min-w-[900px] table-auto">
             <thead>
-              <tr className="text-muted-foreground">
-                <th className="pb-2 font-medium">Service name</th>
-                <th className="pb-2 font-medium">Network Endpoint URL</th>
-                <th className="pb-2 font-medium">Latency</th>
-                <th className="pb-2 font-medium">Canonical Status</th>
-                <th className="pb-2 font-medium">Failures</th>
-                <th className="pb-2 font-medium">Diagnostics / Reason</th>
-                <th className="pb-2 font-medium text-right">Intervention</th>
+              <tr className="text-muted-foreground border-b border-border/40">
+                <th className="py-2.5 px-3 font-medium whitespace-nowrap w-[170px]">Service name</th>
+                <th className="py-2.5 px-3 font-medium whitespace-nowrap w-[200px]">Network Endpoint URL</th>
+                <th className="py-2.5 px-3 font-medium whitespace-nowrap w-[80px]">Latency</th>
+                <th className="py-2.5 px-3 font-medium whitespace-nowrap w-[110px]">Canonical Status</th>
+                <th className="py-2.5 px-3 font-medium whitespace-nowrap w-[70px]">Failures</th>
+                <th className="py-2.5 px-3 font-medium whitespace-nowrap">Diagnostics / Reason</th>
+                <th className="py-2.5 px-3 font-medium text-right whitespace-nowrap w-[90px]">Intervention</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {services.length > 0 ? (
                 services.map((svc: any, idx: number) => (
                   <tr key={idx} className="hover:bg-secondary/20 transition-colors">
-                    <td className="py-3 font-semibold text-foreground flex items-center gap-1.5 uppercase">
-                      <Server className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      {svc.name}
+                    <td className="py-3 px-3 font-semibold text-foreground uppercase whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Server className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <span className="truncate max-w-[140px]" title={svc.name}>{svc.name}</span>
+                      </div>
                     </td>
-                    <td className="py-3 text-muted-foreground select-all max-w-[160px] truncate">{svc.url}</td>
-                    <td className="py-3 font-semibold text-foreground">{svc.latency_ms} ms</td>
-                    <td className="py-3">
+                    <td className="py-3 px-3 text-muted-foreground select-all max-w-[190px] truncate">{svc.url}</td>
+                    <td className="py-3 px-3 font-semibold text-foreground whitespace-nowrap font-mono">{svc.latency_ms} ms</td>
+                    <td className="py-3 px-3 whitespace-nowrap">
                       <span className={getCanonicalBadge(svc.canonical_state || svc.status)}>
                         {(svc.canonical_state || svc.status).toUpperCase()}
                       </span>
                     </td>
-                    <td className="py-3">
+                    <td className="py-3 px-3 whitespace-nowrap">
                       <span className={(svc.consecutive_failures || 0) > 0 ? 'text-rose-400 font-bold' : 'text-muted-foreground'}>
                         {svc.consecutive_failures || 0}
                       </span>
                     </td>
-                    <td className="py-3 text-muted-foreground max-w-xs truncate" title={svc.failure_reason || 'Operational'}>
+                    <td className="py-3 px-3 text-muted-foreground max-w-[200px] truncate" title={svc.failure_reason || 'Operational'}>
                       {svc.failure_reason || 'Operational'}
                     </td>
-                    <td className="py-3 text-right">
+                    <td className="py-3 px-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => handleRestart(svc.name)}
-                        className="px-2 py-1 bg-secondary hover:bg-border text-foreground hover:text-primary font-sans font-bold text-[9px] rounded transition-colors flex items-center gap-1 ml-auto"
+                        className="px-2 py-1 bg-secondary hover:bg-border text-foreground hover:text-primary font-sans font-bold text-[9px] rounded transition-colors inline-flex items-center gap-1 ml-auto"
                       >
                         <Zap className="w-2.5 h-2.5" /> Recover
                       </button>

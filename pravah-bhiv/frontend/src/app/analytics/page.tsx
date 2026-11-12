@@ -205,9 +205,11 @@ export default function Analytics() {
 
         {/* SLA Slow Endpoints Table */}
         <div className="premium-card flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-2">
             <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">SLA Threshold Violations (&gt; 2000ms)</h4>
-            <span className="text-[10px] text-muted-foreground">{slowEndpoints.length} flagged</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/60 border border-border/50 text-muted-foreground whitespace-nowrap">
+              {slowEndpoints.length} flagged
+            </span>
           </div>
           <div className="overflow-x-auto max-h-56">
             <table className="w-full text-left text-[10px] divide-y divide-border">

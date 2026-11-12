@@ -14,6 +14,7 @@ import {
   Flame, 
   Plus, 
   ShieldCheck, 
+  Shield,
   Settings, 
   Activity, 
   XOctagon, 
@@ -72,6 +73,28 @@ export default function ControlPlane() {
     );
   }
 
+  const getAppStatus = (app: any): { label: string; pillClass: string; isFrozen: boolean } => {
+    const isFrozen = app.manual_freeze === true || app.freeze === true || app.status === 'frozen';
+    if (isFrozen) {
+      return { label: 'FROZEN', pillClass: 'critical', isFrozen: true };
+    }
+    const rawStatus = (app.status || '').toLowerCase();
+    if (rawStatus === 'healthy' || rawStatus === 'online') {
+      return { label: 'ONLINE', pillClass: 'healthy', isFrozen: false };
+    }
+    if (rawStatus === 'unreachable' || rawStatus === 'offline' || rawStatus === 'error') {
+      return { label: 'OFFLINE', pillClass: 'critical', isFrozen: false };
+    }
+    if (rawStatus === 'degraded') {
+      return { label: 'DEGRADED', pillClass: 'degraded', isFrozen: false };
+    }
+    if (rawStatus === 'unknown' || !app.status) {
+      // Control Plane has app registered in spec, but runtime health check has not reported telemetry
+      return { label: 'STATUS NOT REPORTED', pillClass: 'info', isFrozen: false };
+    }
+    return { label: String(app.status).toUpperCase(), pillClass: 'info', isFrozen: false };
+  };
+
   // Fetch active apps directly from backend registry
   const activeApps = healthOverview?.overview || [];
 
@@ -111,25 +134,34 @@ export default function ControlPlane() {
             {activeApps.length > 0 ? (
               activeApps.map((app: any, idx: number) => {
                 const name = app.app_name || app.name || app.id || `Agent-${idx}`;
-                const isFrozen = app.manual_freeze === true || app.freeze === true || app.status === 'frozen';
+                const { label: statusLabel, pillClass, isFrozen } = getAppStatus(app);
                 return (
                   <div key={idx} className="border border-border rounded-lg p-4 bg-secondary/20 flex flex-col gap-3 relative overflow-hidden group">
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-foreground uppercase tracking-wide">{name}</span>
-                      <span className={`status-pill ${isFrozen ? 'critical' : (app.status === 'healthy' ? 'healthy' : 'info')}`}>
-                        {isFrozen ? 'FROZEN' : (app.status === 'healthy' ? 'HEALTHY' : (app.status || 'UNKNOWN').toUpperCase())}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-extrabold text-foreground uppercase tracking-wide truncate flex-1 min-w-0" title={name}>{name}</span>
+                      <span className={`status-pill ${pillClass} shrink-0`}>
+                        {statusLabel}
                       </span>
                     </div>
 
                     <div className="flex flex-col gap-1 text-[10px] text-muted-foreground">
                       <div>Source: <span className="text-foreground">{app.source_type || 'unknown'}</span> ({app.runtime || 'system'})</div>
+                      {app.health_endpoint && (
+                        <div>Health Probe: <span className="font-mono text-foreground">{app.health_endpoint}</span></div>
+                      )}
                       {app.last_action && <div>Last Action: <span className="text-primary font-bold uppercase">{app.last_action}</span></div>}
                       {app.last_seen && <div>Last Seen: <span className="text-foreground">{new Date(app.last_seen).toLocaleTimeString()}</span></div>}
                     </div>
 
                     {/* Icon indicator */}
                     <div className="absolute right-3 bottom-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                      {isFrozen ? <XOctagon className="w-12 h-12 text-rose-500" /> : <ShieldCheck className="w-12 h-12 text-emerald-500" />}
+                      {isFrozen ? (
+                        <XOctagon className="w-12 h-12 text-rose-500" />
+                      ) : statusLabel === 'ONLINE' ? (
+                        <ShieldCheck className="w-12 h-12 text-emerald-500" />
+                      ) : (
+                        <Shield className="w-12 h-12 text-blue-400" />
+                      )}
                     </div>
                   </div>
                 );
