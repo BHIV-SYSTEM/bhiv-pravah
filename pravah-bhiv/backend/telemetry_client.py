@@ -83,7 +83,7 @@ def get_observer_ingest_url() -> str:
         return f"http://{obs_host}:{obs_port}/api/ingest"
 
     # Auto-detect container vs host runtime
-    is_container = os.path.exists("/.dockerenv") or os.getenv("DOCKER_CONTAINER") == "true" or os.getenv("ENVIRONMENT") == "prod"
+    is_container = (os.path.exists("/.dockerenv") or os.getenv("DOCKER_CONTAINER") == "true") and os.name != "nt"
     default_host = "observer" if is_container else "127.0.0.1"
     return f"http://{default_host}:{obs_port}/api/ingest"
 
@@ -121,6 +121,12 @@ def emit_application_telemetry(
     Submits an application request telemetry event to the background dispatcher.
     Strictly excludes sensitive payload or authorization headers.
     """
+    if (
+        os.getenv("PRAVAH_TELEMETRY_ENABLED", "true").lower() in ("false", "0", "off")
+        or "PYTEST_CURRENT_TEST" in os.environ
+    ):
+        return
+
     normalized = normalize_path(endpoint)
     ts = timestamp if timestamp is not None else time.time()
 

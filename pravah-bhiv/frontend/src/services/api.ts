@@ -114,12 +114,12 @@ export const api = {
   },
 
   ingestLink: async (link: string): Promise<{ success: boolean; message?: string; error?: string; ingested_link?: any }> => {
-    const res = await decisionBrainApi.post('/ingest-link', { link });
+    const res = await axios.post('/api/ingest-link', { link });
     return res.data;
   },
 
   removeLink: async (link: string): Promise<{ success: boolean; message?: string; error?: string }> => {
-    const res = await decisionBrainApi.post('/remove-link', { link });
+    const res = await axios.post('/api/remove-link', { link });
     return res.data;
   },
 

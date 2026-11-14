@@ -136,10 +136,11 @@ def _probe_service(name: str, health_url: str, url: str):
     ok = False
     tier = "platform" if name in ["control-plane", "decision-brain", "observer", "redis"] else "product"
 
+    probe_timeout = float(os.getenv("PRAVAH_PROBE_TIMEOUT_SEC", "5.0"))
     try:
         resp = _req.get(
             health_url,
-            timeout=3,
+            timeout=probe_timeout,
             headers={
                 "User-Agent": "Pravah-Observer-Probe/1.0",
                 "X-Pravah-Source": "probe",
@@ -160,7 +161,7 @@ def _probe_service(name: str, health_url: str, url: str):
     except _req.Timeout:
         latency = (time.time() - start) * 1000
         error_type = "timeout"
-        raw_detail = "Request timed out after 3.0s"
+        raw_detail = f"Request timed out after {latency/1000.0:.1f}s"
     except Exception as exc:
         latency = (time.time() - start) * 1000
         error_type = "unknown"
@@ -200,7 +201,7 @@ def _poll_loop(interval: float = 10.0):
     All probes are read-only GET requests to health endpoints.
     """
     from concurrent.futures import ThreadPoolExecutor
-    
+
     while True:
         services = {
             "gurukul-backend": {
@@ -310,14 +311,14 @@ def _poll_loop(interval: float = 10.0):
                 "health_url": f"{os.getenv('PRAVAH_CORE_INTEGRATOR_API', 'https://core-integrator-collaborative.onrender.com')}/openapi.json"
             },
         }
-        
+
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
             for svc_name, svc_cfg in services.items():
                 futures.append(executor.submit(_probe_service, svc_name, svc_cfg["health_url"], svc_cfg["url"]))
             for f in futures:
                 f.result() # Wait for all to complete
-                
+
         with store_lock:
             observation_store["poll_count"] += 1
         time.sleep(interval)
@@ -329,11 +330,11 @@ def _masterdb_lifecycle_loop(interval: float = 30.0):
     import uuid
     import time
     masterdb_api = os.getenv("PRAVAH_MASTERDB_API", "https://masterdb-ingestion-certification-service.onrender.com")
-    
+
     while True:
         dataset_id = f"synthetic-{uuid.uuid4().hex[:8]}"
         trace_id = f"trace-{uuid.uuid4().hex[:12]}"
-        
+
         # 1. Validation
         val_start = time.time()
         try:
@@ -394,7 +395,7 @@ def _masterdb_lifecycle_loop(interval: float = 30.0):
         except Exception as e:
             audit_lat = (time.time() - audit_start) * 1000
             _record_event("masterdb-audit", "error", f"Audit/Status failed: {str(e)[:100]}", audit_lat)
-            
+
         time.sleep(interval)
 
 
@@ -428,7 +429,7 @@ def start_background_poller():
     poller = threading.Thread(target=_poll_loop, args=(10.0,), daemon=True)
     poller.start()
     print("[Pravah Observer] Background poller started on FastAPI startup (10s interval)")
-    
+
     lifecycle_poller = threading.Thread(target=_masterdb_lifecycle_loop, args=(30.0,), daemon=True)
     lifecycle_poller.start()
     print("[Pravah Observer] MasterDB Lifecycle prober started (30s interval)")
@@ -559,7 +560,7 @@ def api_metrics():
         services_count = len(services)
         healthy_count = sum(1 for s in services.values() if s.get("status") == "healthy")
         degraded_count = sum(1 for s in services.values() if s.get("status") == "degraded")
-        
+
     metrics = [
         f"# HELP observer_poll_count_total Total number of active polling loops executed",
         f"# TYPE observer_poll_count_total counter",
@@ -574,7 +575,7 @@ def api_metrics():
         f"# TYPE observer_degraded_services_total gauge",
         f"observer_degraded_services_total {degraded_count}"
     ]
-    
+
     content = "\n".join(metrics) + "\n"
     return Response(content=content, media_type="text/plain; version=0.0.4")
 
@@ -770,29 +771,29 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);background-image:
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffea00" />
             </marker>
           </defs>
-          
+
           <!-- Connections -->
           <line x1="120" y1="120" x2="240" y2="120" stroke="#7e8b9f" stroke-width="2" marker-end="url(#arrow)" id="link-intent-runner" />
           <line x1="380" y1="120" x2="480" y2="120" stroke="#7e8b9f" stroke-width="2" marker-end="url(#arrow)" id="link-runner-plane" />
           <line x1="620" y1="120" x2="720" y2="120" stroke="#7e8b9f" stroke-width="2" marker-end="url(#arrow)" id="link-plane-registry" />
           <line x1="860" y1="120" x2="930" y2="120" stroke="#00e676" stroke-width="2" marker-end="url(#arrow-green)" id="link-registry-verification" />
-          
+
           <!-- Nodes -->
           <circle cx="70" cy="120" r="35" fill="rgba(108,53,255,0.15)" stroke="#6c35ff" stroke-width="2" />
           <text x="70" y="124" fill="#f0f4fc" font-size="11" font-weight="600" text-anchor="middle" font-family="'Outfit'">Intent</text>
-          
+
           <rect x="240" y="85" width="140" height="70" rx="12" fill="rgba(18,22,38,0.85)" stroke="#7e8b9f" stroke-width="2" id="node-runner" />
           <text x="310" y="115" fill="#f0f4fc" font-size="11" font-weight="700" text-anchor="middle" font-family="'Outfit'">Prompt Runner</text>
           <text x="310" y="136" fill="#7e8b9f" font-size="10" text-anchor="middle" id="lbl-runner" font-family="monospace">OFFLINE</text>
-          
+
           <rect x="480" y="85" width="140" height="70" rx="12" fill="rgba(18,22,38,0.85)" stroke="#7e8b9f" stroke-width="2" id="node-plane" />
           <text x="550" y="115" fill="#f0f4fc" font-size="11" font-weight="700" text-anchor="middle" font-family="'Outfit'">Pravah Engine</text>
           <text x="550" y="136" fill="#7e8b9f" font-size="10" text-anchor="middle" id="lbl-plane" font-family="monospace">OFFLINE</text>
-          
+
           <rect x="720" y="85" width="140" height="70" rx="12" fill="rgba(18,22,38,0.85)" stroke="#7e8b9f" stroke-width="2" id="node-registry" />
           <text x="790" y="115" fill="#f0f4fc" font-size="11" font-weight="700" text-anchor="middle" font-family="'Outfit'">Evidence Reg</text>
           <text x="790" y="136" fill="#7e8b9f" font-size="10" text-anchor="middle" id="lbl-registry" font-family="monospace">OFFLINE</text>
-          
+
           <circle cx="955" cy="120" r="25" fill="rgba(0,230,118,0.1)" stroke="#00e676" stroke-width="2" />
           <text x="955" y="124" fill="#00e676" font-size="9" font-weight="800" text-anchor="middle" font-family="'Outfit'">VERIFIED</text>
         </svg>
@@ -860,7 +861,7 @@ function pulseHtml(status){return `<span class="pulse ${status}"></span>`}
 function switchTab(tabId){
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-  
+
   document.getElementById(`tab-btn-${tabId}`).classList.add('active');
   document.getElementById(`tab-${tabId}`).classList.add('active');
 }
@@ -916,7 +917,7 @@ async function refresh(){
     const runner = status.services['prompt-runner01'];
     const plane = status.services['control-plane'];
     const sarathi = status.services['bhiv-sarathi'];
-    
+
     // runner node color & text
     if (runner) {
       const color = runner.status === 'healthy' ? '#00e676' : (runner.status === 'degraded' ? '#ffea00' : '#ff1744');
@@ -928,7 +929,7 @@ async function refresh(){
       document.getElementById('link-intent-runner').setAttribute('stroke', linkStroke);
       document.getElementById('link-intent-runner').setAttribute('marker-end', arrowColor);
     }
-    
+
     // control plane node color & text
     if (plane) {
       const color = plane.status === 'healthy' ? '#00e676' : (plane.status === 'degraded' ? '#ffea00' : '#ff1744');
@@ -940,7 +941,7 @@ async function refresh(){
       document.getElementById('link-runner-plane').setAttribute('stroke', linkStroke);
       document.getElementById('link-runner-plane').setAttribute('marker-end', arrowColor);
     }
-    
+
     // evidence registry updates (if control plane is up and evidence endpoint responds)
     if (plane && plane.status === 'healthy') {
       document.getElementById('node-registry').setAttribute('stroke', '#00e676');
