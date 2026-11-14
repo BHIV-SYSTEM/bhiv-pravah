@@ -28,12 +28,16 @@ from health_engine import (
     sanitize_html_detail,
 )
 
+PRAVAH_MDU_API_URL = os.getenv("PRAVAH_MDU_API", "https://parakosha.blackholeinfiverse.com")
+PRAVAH_MDU_SLA_MS = float(os.getenv("PRAVAH_MDU_SLA_MS", "1200"))
+
 health_tracker = ServiceHealthTracker(
     poll_interval_sec=float(os.getenv("HEALTH_CHECK_INTERVAL", "10")),
     sla_latency_ms=float(os.getenv("SLA_LATENCY_MS", "500")),
     degradation_threshold=int(os.getenv("PRAVAH_DEGRADATION_THRESHOLD", "2")),
     recovery_threshold=int(os.getenv("PRAVAH_RECOVERY_THRESHOLD", "2")),
     unreachable_threshold=int(os.getenv("PRAVAH_UNREACHABLE_THRESHOLD", "2")),
+    service_slas={"bhiv-mdu-api": PRAVAH_MDU_SLA_MS},
 )
 
 # ---------------------------------------------------------------------------
@@ -130,7 +134,7 @@ def _record_event(
             observation_store["events"] = observation_store["events"][-MAX_EVENTS:]
 
 
-def _probe_service(name: str, health_url: str, url: str):
+def _probe_service(name: str, health_url: str, url: str, tier: Optional[str] = None, sla_ms: Optional[float] = None):
     """Probe a single service endpoint and record canonical health & telemetry."""
     import requests as _req
 
@@ -141,7 +145,8 @@ def _probe_service(name: str, health_url: str, url: str):
     raw_detail = ""
     error_type = None
     ok = False
-    tier = "platform" if name in ["control-plane", "decision-brain", "observer", "redis"] else "product"
+    if tier is None:
+        tier = "platform" if name in ["control-plane", "decision-brain", "observer", "redis"] else "product"
 
     probe_timeout = float(os.getenv("PRAVAH_PROBE_TIMEOUT_SEC", "5.0"))
     try:
@@ -185,6 +190,7 @@ def _probe_service(name: str, health_url: str, url: str):
             error_type=error_type,
             content_type=content_type,
             tier=tier,
+            sla_ms=sla_ms,
         )
         observation_store["services"][name] = svc_record
 
@@ -308,8 +314,9 @@ def _poll_loop(interval: float = 10.0):
                 "health_url": f"{os.getenv('PRAVAH_SAMRUDDHI_HFT', 'http://localhost:8000')}/api/health"
             },
             "bhiv-mdu-api": {
-                "url": os.getenv("PRAVAH_MDU_API", "http://localhost:8000"),
-                "health_url": f"{os.getenv('PRAVAH_MDU_API', 'http://localhost:8000')}/health"
+                "url": PRAVAH_MDU_API_URL,
+                "health_url": f"{PRAVAH_MDU_API_URL}/health",
+                "sla_ms": PRAVAH_MDU_SLA_MS,
             },
             "insightbridge-phase4-demo": {
                 "url": os.getenv("PRAVAH_INSIGHTBRIDGE_DEMO_API", "http://localhost:8000"),
@@ -324,7 +331,16 @@ def _poll_loop(interval: float = 10.0):
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
             for svc_name, svc_cfg in services.items():
-                futures.append(executor.submit(_probe_service, svc_name, svc_cfg["health_url"], svc_cfg["url"]))
+                futures.append(
+                    executor.submit(
+                        _probe_service,
+                        svc_name,
+                        svc_cfg["health_url"],
+                        svc_cfg["url"],
+                        svc_cfg.get("tier"),
+                        svc_cfg.get("sla_ms"),
+                    )
+                )
             for f in futures:
                 f.result() # Wait for all to complete
 
