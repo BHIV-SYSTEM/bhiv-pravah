@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { useObserverStatus } from '../../hooks/useBackend';
-import { 
-  Shield, 
-  Search, 
-  RefreshCw, 
-  HelpCircle, 
+import { ServiceUrlLink } from '../../components/ServiceUrlLink';
+import {
+  Shield,
+  Search,
+  RefreshCw,
+  HelpCircle,
   ExternalLink,
   ChevronDown,
   Info,
@@ -37,7 +38,7 @@ export default function Observer() {
             Failed to connect to the Pravah Observer Server on port 8600. Ensure the uvicorn server is running.
           </p>
         </div>
-        <button 
+        <button
           onClick={() => refetch()}
           className="px-4 py-2 bg-primary text-primary-foreground font-sans text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
         >
@@ -93,7 +94,7 @@ export default function Observer() {
 
   return (
     <div className="flex-1 flex flex-col gap-6 font-mono text-xs">
-      
+
       {/* Header */}
       <header className="flex justify-between items-end pb-4 border-b border-border/60">
         <div>
@@ -106,7 +107,7 @@ export default function Observer() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => refetch()}
             className="flex items-center gap-1.5 px-3 py-1.5 border border-border bg-card hover:bg-secondary rounded-lg transition-colors"
           >
@@ -130,7 +131,7 @@ export default function Observer() {
       <section className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-3">
         <div className="flex items-center gap-2 bg-secondary/40 border border-border px-3 py-1.5 rounded-lg w-64">
           <Search className="w-3.5 h-3.5 text-muted-foreground" />
-          <input 
+          <input
             type="text"
             placeholder="Search observed service or URL..."
             className="bg-transparent border-0 outline-none w-full text-[10px] text-foreground placeholder-muted-foreground"
@@ -164,9 +165,9 @@ export default function Observer() {
                 <span className={`${getStatusClass(svc.status)} w-fit self-start`}>
                   {svc.status}
                 </span>
-                <span className="text-[9px] text-muted-foreground truncate font-mono select-all bg-secondary/35 px-1.5 py-0.5 rounded border border-border/40">
-                  {svc.url}
-                </span>
+                <div className="bg-secondary/35 px-1.5 py-0.5 rounded border border-border/40 text-[9px] flex items-center overflow-hidden">
+                  <ServiceUrlLink url={svc.url} truncateClass="truncate max-w-[180px]" />
+                </div>
               </div>
 
               {/* Latency */}

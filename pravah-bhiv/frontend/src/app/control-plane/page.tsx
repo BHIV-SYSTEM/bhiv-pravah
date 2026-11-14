@@ -7,6 +7,7 @@ import {
   usePostOverride,
   useActionScope
 } from '../../hooks/useBackend';
+import { ServiceUrlLink } from '../../components/ServiceUrlLink';
 import {
   Sliders,
   ShieldAlert,
@@ -157,7 +158,16 @@ export default function ControlPlane() {
                     <div className="flex flex-col gap-1 text-[10px] text-muted-foreground">
                       <div>Source: <span className="text-foreground">{app.source_type || 'unknown'}</span> ({app.runtime || 'system'})</div>
                       {app.health_endpoint && (
-                        <div>Health Probe: <span className="font-mono text-foreground">{app.health_endpoint}</span></div>
+                        <div className="flex items-center gap-1 overflow-hidden">
+                          <span>Health Probe:</span>
+                          <ServiceUrlLink url={app.health_endpoint} truncateClass="truncate max-w-[170px]" />
+                        </div>
+                      )}
+                      {app.url && (
+                        <div className="flex items-center gap-1 overflow-hidden">
+                          <span>URL:</span>
+                          <ServiceUrlLink url={app.url} truncateClass="truncate max-w-[170px]" />
+                        </div>
                       )}
                       {app.observer_status && (
                         <div>Observer: <span className="text-foreground font-mono uppercase">{app.observer_status}</span></div>

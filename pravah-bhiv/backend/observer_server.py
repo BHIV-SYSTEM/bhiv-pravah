@@ -31,6 +31,9 @@ from health_engine import (
 health_tracker = ServiceHealthTracker(
     poll_interval_sec=float(os.getenv("HEALTH_CHECK_INTERVAL", "10")),
     sla_latency_ms=float(os.getenv("SLA_LATENCY_MS", "500")),
+    degradation_threshold=int(os.getenv("PRAVAH_DEGRADATION_THRESHOLD", "2")),
+    recovery_threshold=int(os.getenv("PRAVAH_RECOVERY_THRESHOLD", "2")),
+    unreachable_threshold=int(os.getenv("PRAVAH_UNREACHABLE_THRESHOLD", "2")),
 )
 
 # ---------------------------------------------------------------------------
@@ -102,14 +105,18 @@ def _record_event(
     last_successful_check: Optional[str] = None,
     consecutive_failures: int = 0,
     failure_duration_seconds: float = 0.0,
+    raw_status: Optional[str] = None,
+    rolling_avg_latency_ms: Optional[float] = None,
 ):
     """Append an observation event with rich diagnostic telemetry (thread-safe)."""
     event = {
         "ts": datetime.utcnow().isoformat(),
         "service": service,
         "status": status,
+        "raw_status": raw_status or status,
         "detail": detail,
         "latency_ms": round(latency_ms, 1),
+        "rolling_avg_latency_ms": round(rolling_avg_latency_ms, 1) if rolling_avg_latency_ms is not None else round(latency_ms, 1),
         "http_status": http_status,
         "content_type": content_type or "application/json",
         "failure_category": failure_category or FailureCategory.NONE.value,
@@ -192,6 +199,8 @@ def _probe_service(name: str, health_url: str, url: str):
         last_successful_check=svc_record.get("last_successful_check"),
         consecutive_failures=svc_record.get("consecutive_failures", 0),
         failure_duration_seconds=svc_record.get("failure_duration_seconds", 0.0),
+        raw_status=svc_record.get("raw_status"),
+        rolling_avg_latency_ms=svc_record.get("rolling_avg_latency_ms"),
     )
 
 
