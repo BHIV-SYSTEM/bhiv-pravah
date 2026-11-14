@@ -486,9 +486,11 @@ class ServiceHealthTracker:
         degradation_threshold: Optional[int] = None,
         recovery_threshold: Optional[int] = None,
         unreachable_threshold: Optional[int] = None,
+        service_slas: Optional[Dict[str, float]] = None,
     ):
         self.poll_interval = poll_interval_sec
         self.sla_latency = sla_latency_ms
+        self.service_slas: Dict[str, float] = service_slas.copy() if service_slas else {}
         self.degradation_threshold = (
             degradation_threshold
             if degradation_threshold is not None
@@ -566,12 +568,20 @@ class ServiceHealthTracker:
                 self.application_latency.record(latency_ms)
                 self.application_endpoints[endpoint_key].record(latency_ms)
 
-    def register_service(self, name: str, url: str, tier: str = "product") -> None:
+    def set_service_sla(self, name: str, sla_ms: float) -> None:
+        """Sets or overrides custom SLA latency threshold for a specific service."""
+        self.service_slas[name] = float(sla_ms)
+        if name in self.services:
+            self.services[name]["sla_ms"] = float(sla_ms)
+
+    def register_service(self, name: str, url: str, tier: str = "product", sla_ms: Optional[float] = None) -> None:
         if name not in self.services:
+            svc_sla = sla_ms if sla_ms is not None else self.service_slas.get(name, self.sla_latency)
             self.services[name] = {
                 "name": name,
                 "url": url,
                 "tier": tier,
+                "sla_ms": svc_sla,
                 "status": ServiceState.NOT_MONITORED.value,
                 "raw_status": ServiceState.NOT_MONITORED.value,
                 "consecutive_failures": 0,
@@ -602,6 +612,7 @@ class ServiceHealthTracker:
         error_type: Optional[str] = None,
         content_type: Optional[str] = None,
         tier: str = "product",
+        sla_ms: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Processes and records a single health check probe.
@@ -612,9 +623,15 @@ class ServiceHealthTracker:
         now_iso = now_dt.isoformat()
 
         if name not in self.services:
-            self.register_service(name, url, tier)
+            self.register_service(name, url, tier, sla_ms=sla_ms)
 
         svc = self.services[name]
+        effective_sla = (
+            sla_ms
+            if sla_ms is not None
+            else svc.get("sla_ms") or self.service_slas.get(name, self.sla_latency)
+        )
+        svc["sla_ms"] = effective_sla
         svc["url"] = url
         svc["last_checked"] = now_iso
         svc["latency_ms"] = round(latency_ms, 1)
@@ -655,10 +672,10 @@ class ServiceHealthTracker:
                 raw_status = ServiceState.DEGRADED.value
                 cat = FailureCategory.DEPENDENCY_FAILURE.value
                 reason = f"Dependency '{failed_dep}' is currently degraded or unreachable"
-            elif latency_ms > self.sla_latency:
+            elif latency_ms > effective_sla:
                 raw_status = ServiceState.DEGRADED.value
                 cat = FailureCategory.NONE.value
-                reason = f"High latency ({latency_ms:.1f}ms exceeds {self.sla_latency:.0f}ms SLA)"
+                reason = f"High latency ({latency_ms:.1f}ms exceeds {effective_sla:.0f}ms SLA)"
             else:
                 raw_status = ServiceState.HEALTHY.value
                 cat = FailureCategory.NONE.value
@@ -860,12 +877,13 @@ class ServiceHealthTracker:
         for name, reservoir in self.latency_reservoirs.items():
             svc_stats = reservoir.compute_stats()
             p95 = svc_stats.get("p95_ms")
-            if p95 is not None and p95 > self.sla_latency:
+            svc_sla = self.services.get(name, {}).get("sla_ms") or self.service_slas.get(name, self.sla_latency)
+            if p95 is not None and p95 > svc_sla:
                 slow_probe_endpoints.append({
                     "service": name,
                     "p95_ms": p95,
                     "avg_ms": svc_stats.get("avg_ms"),
-                    "sla_ms": self.sla_latency,
+                    "sla_ms": svc_sla,
                     "type": "probe",
                 })
 
@@ -918,6 +936,7 @@ class ServiceHealthTracker:
             tier = info.get("tier", "product")
             reservoir = self.latency_reservoirs.get(name)
             svc_perf = reservoir.compute_stats() if reservoir else {}
+            svc_sla = info.get("sla_ms") or self.service_slas.get(name, self.sla_latency)
 
             item = {
                 "name": name,
@@ -925,6 +944,7 @@ class ServiceHealthTracker:
                 "status": info.get("status"),
                 "raw_status": info.get("raw_status", info.get("status")),
                 "tier": tier,
+                "sla_ms": svc_sla,
                 "consecutive_failures": info.get("consecutive_failures", 0),
                 "consecutive_successes": info.get("consecutive_successes", 0),
                 "last_successful_check": info.get("last_successful_check"),

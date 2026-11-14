@@ -209,3 +209,189 @@ class TestHealthStatusStability:
         assert res["latency_ms"] == 90.0
         assert res["rolling_avg_latency_ms"] is not None
         assert res["last_checked"] is not None
+
+
+class TestPerServiceSLA:
+    """Validates per-service SLA override mechanics, especially for bhiv-mdu-api (Parakosha)."""
+
+    def test_parakosha_mdu_at_750ms_remains_healthy_under_1200ms_sla(self):
+        """Parakosha (bhiv-mdu-api) normal latency ~700-800ms must be HEALTHY under 1200ms SLA."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            sla_latency_ms=500.0,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "https://parakosha.blackholeinfiverse.com/health"
+        tracker.register_service("bhiv-mdu-api", url)
+
+        # Baseline probe: 755ms (well under 1200ms SLA, though > 500ms global SLA)
+        res1 = tracker.record_probe_result(
+            "bhiv-mdu-api", url, ok=True, http_status=200, raw_detail='{"status":"healthy"}', latency_ms=755.0
+        )
+        assert res1["status"] == ServiceState.HEALTHY.value
+        assert res1["raw_status"] == ServiceState.HEALTHY.value
+        assert res1["sla_ms"] == 1200.0
+        assert res1["failure_reason"] is None
+
+        # Subsequent probe: 780ms
+        res2 = tracker.record_probe_result(
+            "bhiv-mdu-api", url, ok=True, http_status=200, raw_detail='{"status":"healthy"}', latency_ms=780.0
+        )
+        assert res2["status"] == ServiceState.HEALTHY.value
+        assert res2["raw_status"] == ServiceState.HEALTHY.value
+        assert res2["sla_ms"] == 1200.0
+
+    def test_parakosha_mdu_above_1200ms_becomes_degraded(self):
+        """Parakosha probe exceeding 1200ms SLA must transition to DEGRADED after degradation threshold."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            sla_latency_ms=500.0,
+            degradation_threshold=2,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "https://parakosha.blackholeinfiverse.com/health"
+        tracker.register_service("bhiv-mdu-api", url)
+
+        # Establish healthy baseline
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=720.0)
+
+        # Probe 1 above SLA: 1350ms (damped by threshold 2)
+        res1 = tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=1350.0)
+        assert res1["raw_status"] == ServiceState.DEGRADED.value
+        assert res1["status"] == ServiceState.HEALTHY.value
+        assert res1["consecutive_degraded"] == 1
+
+        # Probe 2 above SLA: 1400ms (sustained -> DEGRADED)
+        res2 = tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=1400.0)
+        assert res2["raw_status"] == ServiceState.DEGRADED.value
+        assert res2["status"] == ServiceState.DEGRADED.value
+        assert "exceeds 1200ms SLA" in res2["failure_reason"]
+
+    def test_other_services_retain_500ms_global_sla(self):
+        """Services without an explicit SLA override must strictly retain the global 500ms SLA."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            sla_latency_ms=500.0,
+            degradation_threshold=1,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "http://localhost:8001"
+        tracker.register_service("crm-api", url)
+
+        # 450ms is within 500ms SLA -> HEALTHY
+        res_ok = tracker.record_probe_result("crm-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=450.0)
+        assert res_ok["status"] == ServiceState.HEALTHY.value
+        assert res_ok["sla_ms"] == 500.0
+
+        # 550ms exceeds 500ms SLA -> DEGRADED
+        res_deg = tracker.record_probe_result("crm-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=550.0)
+        assert res_deg["raw_status"] == ServiceState.DEGRADED.value
+        assert res_deg["status"] == ServiceState.DEGRADED.value
+        assert "exceeds 500ms SLA" in res_deg["failure_reason"]
+
+    def test_consecutive_failures_produce_unreachable_on_parakosha(self):
+        """Sustained connection failures on Parakosha transition from HEALTHY to UNREACHABLE."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            sla_latency_ms=500.0,
+            unreachable_threshold=2,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "https://parakosha.blackholeinfiverse.com/health"
+        tracker.register_service("bhiv-mdu-api", url)
+
+        # Baseline Healthy
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=750.0)
+
+        # Failure 1: connection refused
+        f1 = tracker.record_probe_result(
+            "bhiv-mdu-api", url, ok=False, http_status=None, raw_detail="Connection refused", latency_ms=0.0, error_type="connection_refused"
+        )
+        assert f1["raw_status"] == ServiceState.UNREACHABLE.value
+        assert f1["status"] == ServiceState.DEGRADED.value
+
+        # Failure 2: connection refused (sustained)
+        f2 = tracker.record_probe_result(
+            "bhiv-mdu-api", url, ok=False, http_status=None, raw_detail="Connection refused", latency_ms=0.0, error_type="connection_refused"
+        )
+        assert f2["status"] == ServiceState.UNREACHABLE.value
+        assert f2["consecutive_unreachable"] == 2
+
+    def test_consecutive_successes_recover_parakosha(self):
+        """Recovering Parakosha from DEGRADED requires meeting recovery threshold."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            sla_latency_ms=500.0,
+            recovery_threshold=2,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "https://parakosha.blackholeinfiverse.com/health"
+        tracker.register_service("bhiv-mdu-api", url)
+
+        # Force DEGRADED
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=False, http_status=500, raw_detail="Internal Server Error", latency_ms=750.0)
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=False, http_status=500, raw_detail="Internal Server Error", latency_ms=750.0)
+        assert tracker.services["bhiv-mdu-api"]["status"] == ServiceState.DEGRADED.value
+
+        # First healthy check (750ms < 1200ms) -> recovering
+        r1 = tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=750.0)
+        assert r1["status"] == ServiceState.DEGRADED.value
+        assert r1["consecutive_successes"] == 1
+        assert "Recovering" in r1["failure_reason"]
+
+        # Second healthy check -> fully recovered
+        r2 = tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=760.0)
+        assert r2["status"] == ServiceState.HEALTHY.value
+        assert r2["consecutive_successes"] == 2
+        assert r2["failure_reason"] is None
+
+    def test_stale_monitoring_data_on_parakosha(self):
+        """Stale probe data on Parakosha marks status as STALE and never displays as HEALTHY."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "https://parakosha.blackholeinfiverse.com/health"
+        tracker.register_service("bhiv-mdu-api", url)
+
+        # Record healthy check
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=740.0)
+        assert tracker.services["bhiv-mdu-api"]["status"] == ServiceState.HEALTHY.value
+
+        # Age probe past staleness threshold (35s > 25s threshold)
+        stale_time = (datetime.now(timezone.utc) - timedelta(seconds=35)).isoformat()
+        tracker.services["bhiv-mdu-api"]["last_checked"] = stale_time
+
+        tracker.check_staleness()
+        assert tracker.services["bhiv-mdu-api"]["status"] == ServiceState.STALE.value
+
+        unified = tracker.get_unified_product_health()
+        mdu_svc = next(p for p in unified["products"] if p["name"] == "bhiv-mdu-api")
+        assert mdu_svc["status"] == ServiceState.STALE.value
+        assert mdu_svc["sla_ms"] == 1200.0
+
+    def test_raw_and_stabilized_status_with_per_service_sla(self):
+        """Unified product health and performance summary expose SLA, raw status, and rolling avg."""
+        tracker = ServiceHealthTracker(
+            poll_interval_sec=10.0,
+            sla_latency_ms=500.0,
+            service_slas={"bhiv-mdu-api": 1200.0},
+        )
+        url = "https://parakosha.blackholeinfiverse.com/health"
+        tracker.register_service("bhiv-mdu-api", url)
+
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=720.0)
+        tracker.record_probe_result("bhiv-mdu-api", url, ok=True, http_status=200, raw_detail="OK", latency_ms=760.0)
+
+        unified = tracker.get_unified_product_health()
+        mdu_svc = next(p for p in unified["products"] if p["name"] == "bhiv-mdu-api")
+        assert mdu_svc["status"] == ServiceState.HEALTHY.value
+        assert mdu_svc["raw_status"] == ServiceState.HEALTHY.value
+        assert mdu_svc["sla_ms"] == 1200.0
+        assert mdu_svc["latency_ms"] == 760.0
+        assert 730.0 <= mdu_svc["rolling_avg_latency_ms"] <= 750.0
+
+        # Performance summary should NOT list bhiv-mdu-api as slow because p95 (~760ms) <= 1200ms SLA
+        perf = tracker.get_performance_summary()
+        probe_slow = perf["sources"]["probe"]["slow_endpoints"]
+        assert not any(ep["service"] == "bhiv-mdu-api" for ep in probe_slow)
