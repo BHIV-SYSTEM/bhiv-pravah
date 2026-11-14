@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { 
-  LiveDashboardResponse, 
-  AutonomousStatus, 
-  Decision, 
-  EvidenceBundle, 
-  ObservedService, 
+import {
+  LiveDashboardResponse,
+  AutonomousStatus,
+  Decision,
+  EvidenceBundle,
+  ObservedService,
   TelemetryEvent,
   ActionScope,
   RuntimeState,
@@ -85,7 +85,7 @@ export const api = {
   },
 
   getLineageReplay: async (
-    executionId: string, 
+    executionId: string,
     params?: { state?: string; start_ts?: number; end_ts?: number }
   ): Promise<{
     execution_id: string;
@@ -144,8 +144,9 @@ export const api = {
 
   postOverride: async (payload: {
     app_name: string;
-    action: 'freeze' | 'clear_freeze';
+    action: 'freeze' | 'clear_freeze' | 'set_freeze';
     duration?: number;
+    duration_minutes?: number;
     reason?: string;
   }): Promise<{ status: string; result: any }> => {
     const res = await controlPlaneApi.post<{ status: string; result: any }>('/api/control-plane/override', payload);
@@ -264,7 +265,7 @@ export async function fetchGroup2Ruling(
     },
     body: JSON.stringify(group1Response.observation), // Group 2 likely expects the observation object
   });
-  
+
   if (!res.ok) {
     let errorText = '';
     try {
@@ -275,7 +276,7 @@ export async function fetchGroup2Ruling(
     }
     throw new Error(`Group 2 responded ${res.status}: ${errorText}`);
   }
-  
+
   return res.json() as Promise<VanaGroup2Ruling>;
 }
 

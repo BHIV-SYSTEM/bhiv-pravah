@@ -1,23 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  useLiveDashboard, 
-  useHealthOverview, 
+import {
+  useLiveDashboard,
+  useHealthOverview,
   usePostOverride,
   useActionScope
 } from '../../hooks/useBackend';
-import { 
-  Sliders, 
-  ShieldAlert, 
-  Play, 
-  Flame, 
-  Plus, 
-  ShieldCheck, 
+import {
+  Sliders,
+  ShieldAlert,
+  Play,
+  Flame,
+  Plus,
+  ShieldCheck,
   Shield,
-  Settings, 
-  Activity, 
-  XOctagon, 
+  Settings,
+  Activity,
+  XOctagon,
   RefreshCw,
   Loader2
 } from 'lucide-react';
@@ -27,7 +27,7 @@ export default function ControlPlane() {
   const { data: dashboard, isLoading: dashLoading } = useLiveDashboard();
   const { data: healthOverview, isLoading: healthLoading, refetch: refetchHealth } = useHealthOverview();
   const { data: actionScope } = useActionScope();
-  
+
   const postOverride = usePostOverride();
 
   // Selected app override form
@@ -79,17 +79,27 @@ export default function ControlPlane() {
       return { label: 'FROZEN', pillClass: 'critical', isFrozen: true };
     }
     const rawStatus = (app.status || '').toLowerCase();
-    if (rawStatus === 'healthy' || rawStatus === 'online') {
-      return { label: 'ONLINE', pillClass: 'healthy', isFrozen: false };
+    // Map all healthy variants
+    if (rawStatus === 'healthy' || rawStatus === 'online' || rawStatus === 'ok' || rawStatus === 'running') {
+      return { label: 'HEALTHY', pillClass: 'healthy', isFrozen: false };
     }
-    if (rawStatus === 'unreachable' || rawStatus === 'offline' || rawStatus === 'error') {
-      return { label: 'OFFLINE', pillClass: 'critical', isFrozen: false };
-    }
-    if (rawStatus === 'degraded') {
+    // Map all degraded variants
+    if (rawStatus === 'degraded' || rawStatus === 'overloaded' || rawStatus === 'slow') {
       return { label: 'DEGRADED', pillClass: 'degraded', isFrozen: false };
     }
+    // Map all unreachable/offline/error variants
+    if (
+      rawStatus === 'unreachable' ||
+      rawStatus === 'offline' ||
+      rawStatus === 'error' ||
+      rawStatus === 'crashed' ||
+      rawStatus === 'connection_refused' ||
+      rawStatus === 'timeout'
+    ) {
+      return { label: 'UNREACHABLE', pillClass: 'critical', isFrozen: false };
+    }
+    // No runtime data from Observer or decision history
     if (rawStatus === 'unknown' || !app.status) {
-      // Control Plane has app registered in spec, but runtime health check has not reported telemetry
       return { label: 'STATUS NOT REPORTED', pillClass: 'info', isFrozen: false };
     }
     return { label: String(app.status).toUpperCase(), pillClass: 'info', isFrozen: false };
@@ -100,7 +110,7 @@ export default function ControlPlane() {
 
   return (
     <div className="flex-1 flex flex-col gap-6 font-mono text-xs">
-      
+
       {/* Header */}
       <header className="flex justify-between items-end pb-4 border-b border-border/60">
         <div>
@@ -116,12 +126,12 @@ export default function ControlPlane() {
 
       {/* Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Managed Agents / Apps */}
         <div className="lg:col-span-2 premium-card flex flex-col gap-4">
           <div className="flex justify-between items-center border-b border-border/40 pb-2">
             <span className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Orchestrated System Registry</span>
-            <button 
+            <button
               onClick={() => refetchHealth()}
               className="p-1 hover:text-primary transition-colors"
               title="Refresh"
@@ -149,6 +159,9 @@ export default function ControlPlane() {
                       {app.health_endpoint && (
                         <div>Health Probe: <span className="font-mono text-foreground">{app.health_endpoint}</span></div>
                       )}
+                      {app.observer_status && (
+                        <div>Observer: <span className="text-foreground font-mono uppercase">{app.observer_status}</span></div>
+                      )}
                       {app.last_action && <div>Last Action: <span className="text-primary font-bold uppercase">{app.last_action}</span></div>}
                       {app.last_seen && <div>Last Seen: <span className="text-foreground">{new Date(app.last_seen).toLocaleTimeString()}</span></div>}
                     </div>
@@ -157,8 +170,12 @@ export default function ControlPlane() {
                     <div className="absolute right-3 bottom-3 opacity-10 group-hover:opacity-20 transition-opacity">
                       {isFrozen ? (
                         <XOctagon className="w-12 h-12 text-rose-500" />
-                      ) : statusLabel === 'ONLINE' ? (
+                      ) : statusLabel === 'HEALTHY' ? (
                         <ShieldCheck className="w-12 h-12 text-emerald-500" />
+                      ) : statusLabel === 'UNREACHABLE' ? (
+                        <XOctagon className="w-12 h-12 text-rose-400" />
+                      ) : statusLabel === 'DEGRADED' ? (
+                        <Flame className="w-12 h-12 text-amber-400" />
                       ) : (
                         <Shield className="w-12 h-12 text-blue-400" />
                       )}
@@ -185,7 +202,7 @@ export default function ControlPlane() {
             {/* Select App */}
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] text-muted-foreground uppercase">Target Application:</label>
-              <select 
+              <select
                 className="bg-secondary/40 text-foreground border border-border rounded-lg px-3 py-2 outline-none font-mono focus:border-primary w-full text-xs"
                 value={selectedApp}
                 onChange={(e) => setSelectedApp(e.target.value)}
@@ -223,9 +240,9 @@ export default function ControlPlane() {
             {overrideAction === 'freeze' && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] text-muted-foreground uppercase">Freeze Duration (seconds):</label>
-                <input 
-                  type="number" 
-                  min={10} 
+                <input
+                  type="number"
+                  min={10}
                   max={36000}
                   className="bg-secondary/40 text-foreground border border-border rounded-xl px-4 py-2.5 outline-none font-mono focus:border-primary text-xs shadow-inner"
                   value={duration}
@@ -238,7 +255,7 @@ export default function ControlPlane() {
             {overrideAction === 'freeze' && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] text-muted-foreground uppercase">Justification / Reason:</label>
-                <textarea 
+                <textarea
                   className="bg-secondary/40 text-foreground border border-border rounded-xl px-4 py-2.5 outline-none font-mono focus:border-primary text-xs h-20 resize-none shadow-inner"
                   placeholder="Troubleshooting database lock latency spikes..."
                   value={reason}
@@ -247,7 +264,7 @@ export default function ControlPlane() {
               </div>
             )}
 
-            <button 
+            <button
               type="submit"
               disabled={postOverride.isPending}
               className="mt-2 w-full py-3 px-5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-sans font-extrabold uppercase tracking-wider text-center flex items-center justify-center gap-2 text-xs transition-all active:scale-[0.98] shadow-md border border-primary/20 cursor-pointer"

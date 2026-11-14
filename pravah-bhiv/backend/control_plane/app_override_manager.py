@@ -8,10 +8,19 @@ class AppOverrideManager:
     """Manages temporary per-app manual overrides such as freeze mode."""
 
     def __init__(self, store_file: str = "logs/control_plane/app_overrides.json"):
-        self.store_file = store_file
+        if not os.path.isabs(store_file):
+            # Resolve relative to backend root
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.store_file = os.path.join(base_dir, store_file)
+        else:
+            self.store_file = store_file
         os.makedirs(os.path.dirname(self.store_file), exist_ok=True)
         if not os.path.exists(self.store_file):
             self._write_store({"apps": {}})
+
+    @staticmethod
+    def _norm_key(k: str) -> str:
+        return (k or "").lower().replace("-", "").replace("_", "").replace(" ", "")
 
     def _read_store(self) -> Dict[str, Any]:
         try:
@@ -49,11 +58,18 @@ class AppOverrideManager:
 
     def clear_freeze(self, app_name: str) -> Dict[str, Any]:
         store = self._read_store()
-        if app_name in store["apps"]:
-            store["apps"][app_name]["freeze_enabled"] = False
-            store["apps"][app_name]["freeze_until"] = datetime.now(timezone.utc).isoformat()
-            store["apps"][app_name]["reason"] = "manual_unfreeze"
+        target_norm = self._norm_key(app_name)
+        matched_keys = [k for k in store["apps"] if self._norm_key(k) == target_norm]
+        if not matched_keys and app_name in store["apps"]:
+            matched_keys = [app_name]
+
+        for k in matched_keys:
+            store["apps"][k]["freeze_enabled"] = False
+            store["apps"][k]["freeze_until"] = datetime.now(timezone.utc).isoformat()
+            store["apps"][k]["reason"] = "manual_unfreeze"
+        if matched_keys:
             self._write_store(store)
+
         return {
             "app_name": app_name,
             "freeze_enabled": False
@@ -62,6 +78,13 @@ class AppOverrideManager:
     def get_app_override(self, app_name: str) -> Optional[Dict[str, Any]]:
         store = self._read_store()
         entry = store["apps"].get(app_name)
+        if not entry:
+            # Fuzzy match by normalized key
+            target_norm = self._norm_key(app_name)
+            for k, v in store["apps"].items():
+                if self._norm_key(k) == target_norm:
+                    entry = v
+                    break
         if not entry:
             return None
 

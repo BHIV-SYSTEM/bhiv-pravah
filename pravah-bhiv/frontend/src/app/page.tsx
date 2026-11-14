@@ -347,23 +347,29 @@ export default function Dashboard() {
         <div className="lg:col-span-2 premium-card flex flex-col gap-4">
           <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground font-mono">Response Times (ms)</h4>
           <div className="h-64 w-full text-[10px] font-mono">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={latencyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="name" stroke="var(--muted-foreground)" />
-                <YAxis stroke="var(--muted-foreground)" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                />
-                <Area type="monotone" dataKey="latency" name="Latency (ms)" stroke="var(--primary)" fillOpacity={1} fill="url(#colorLatency)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {latencyData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={latencyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+                  <YAxis stroke="var(--muted-foreground)" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                  <Area type="monotone" dataKey="latency" name="Latency (ms)" stroke="var(--primary)" fillOpacity={1} fill="url(#colorLatency)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground italic font-mono">
+                No latency telemetry available (No active compute nodes monitored)
+              </div>
+            )}
           </div>
         </div>
 

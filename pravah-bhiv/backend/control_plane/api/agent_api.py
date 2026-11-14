@@ -280,11 +280,11 @@ def control_plane_history(app_name: str):
     try:
         # Validate app_name
         app_name = InputValidator.validate_app_name(app_name)
-        
+
         # Validate limit parameter
         limit_param = request.args.get("limit", "200")
         limit = InputValidator.validate_limit_param(limit_param)
-        
+
         history = control_plane.get_decision_history(app_name=app_name, limit=limit)
         return jsonify({"status": "success", "app_name": app_name, "timeline": history}), 200
     except InputValidationError as exc:
@@ -296,11 +296,35 @@ def control_plane_history(app_name: str):
 @app.route("/api/control-plane/override", methods=["POST"])
 @limiter.limit("40 per minute")
 def control_plane_override():
-    """Manual override panel actions: set or clear temporary per-app freeze."""
+    """Manual override panel actions: set or clear temporary per-app freeze.
+
+    Accepts both frontend-native field names and legacy validator names:
+      action: "freeze" | "clear_freeze"   (frontend sends "freeze"; validator expects "set_freeze")
+      duration: <seconds>                 (frontend sends seconds; validator expects duration_minutes)
+    """
     payload = request.get_json(silent=True) or {}
 
+    # --- Normalise frontend action aliases before validation ---
+    # The frontend form sends action="freeze"; the validator requires "set_freeze".
+    # Map the alias here so the governance validator is never bypassed.
+    normalised = dict(payload)
+    if normalised.get("action") == "freeze":
+        normalised["action"] = "set_freeze"
+
+    # The frontend sends duration in seconds (field: "duration").
+    # The validator reads duration_minutes.  Convert only when duration_minutes
+    # is absent, ensuring existing callers that already send duration_minutes
+    # are unaffected.
+    if "duration_minutes" not in normalised and "duration" in normalised:
+        try:
+            duration_sec = int(normalised["duration"])
+            # Round up to at least 1 minute; cap at 24 h (validator enforces 1–1440).
+            normalised["duration_minutes"] = max(1, duration_sec // 60)
+        except (TypeError, ValueError):
+            pass  # Let the validator surface a typed error.
+
     try:
-        app_name, action, duration, reason = InputValidator.validate_control_plane_override_payload(payload)
+        app_name, action, duration, reason = InputValidator.validate_control_plane_override_payload(normalised)
     except InputValidationError as exc:
         return jsonify({"status": "error", "message": str(exc)}), 400
 
@@ -469,7 +493,7 @@ def shakti_retrieve_evidence(evidence_ref: str):
 def query_unified_registry(trace_id: str):
     if not check_shakti_auth():
         return jsonify({"status": "error", "error": "Unauthorized"}), 401
-    
+
     from control_plane.core.registry_manager import RegistryManager
     manager = RegistryManager(base_dir=root_dir)
     result = manager.query_trace_lineage(trace_id)
@@ -482,7 +506,7 @@ def prometheus_metrics():
     recoveries = 0
     stability_score = None
     history_parse_error = False
-    
+
     # 1. Parse decision history log to count failures/recoveries
     history_file = os.path.join(root_dir, "logs", "control_plane", "decision_history.jsonl")
     if os.path.exists(history_file):
@@ -507,7 +531,7 @@ def prometheus_metrics():
     else:
         # Default baseline when no history file has been created yet
         stability_score = 100
-            
+
     # Count active apps
     from control_plane.multi_app_control_plane import MultiAppControlPlane
     cp = MultiAppControlPlane(env=ENVIRONMENT)
@@ -516,7 +540,7 @@ def prometheus_metrics():
     except Exception as exc:
         logger.warning("Failed to count active apps for metrics: %s", exc)
         apps_count = 0
-    
+
     metrics = []
     if stability_score is not None:
         metrics.extend([
@@ -552,7 +576,7 @@ def prometheus_metrics():
             f"# TYPE pravah_decision_history_parse_errors_total counter",
             f"pravah_decision_history_parse_errors_total 1",
         ])
-    
+
     return "\n".join(metrics) + "\n", 200, {"Content-Type": "text/plain; version=0.0.4"}
 
 

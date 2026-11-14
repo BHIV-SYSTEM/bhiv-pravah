@@ -144,8 +144,9 @@ export function usePostOverride() {
   return useMutation({
     mutationFn: (payload: {
       app_name: string;
-      action: 'freeze' | 'clear_freeze';
+      action: 'freeze' | 'clear_freeze' | 'set_freeze';
       duration?: number;
+      duration_minutes?: number;
       reason?: string;
     }) => api.postOverride(payload),
     onSuccess: (_, variables) => {

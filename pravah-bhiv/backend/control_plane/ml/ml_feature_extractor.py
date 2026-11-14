@@ -14,12 +14,12 @@ class MLFeatureExtractor:
     Extracts ML-ready features from raw telemetry data.
     These features support Anomaly Detection, Predictive Maintenance, and Capacity Forecasting.
     """
-    
+
     def __init__(self, env='prod'):
         self.env = env
         self.env_config = EnvironmentConfig(env)
         self.metrics_dir = self.env_config.get_log_path("metrics")
-        
+
     def _read_csv_safe(self, filename: str) -> pd.DataFrame:
         """Safely read a CSV file into a Pandas DataFrame."""
         file_path = os.path.join(self.metrics_dir, filename)
@@ -43,7 +43,7 @@ class MLFeatureExtractor:
         df_cert = self._read_csv_safe("certification_metrics.csv")
         df_val = self._read_csv_safe("validation_scores.csv")
         df_retry = self._read_csv_safe("retry_metrics.csv")
-        
+
         # 1. Latency Trends (EMA of p50, p95, p99)
         latency_p50 = 0.0
         latency_p95 = 0.0
@@ -54,7 +54,7 @@ class MLFeatureExtractor:
                 latency_p50 = float(np.percentile(recent_latencies, 50))
                 latency_p95 = float(np.percentile(recent_latencies, 95))
                 latency_p99 = float(np.percentile(recent_latencies, 99))
-        
+
         # 2. Failure Frequency & Error Velocity
         failure_rate_15m = 0.0
         error_velocity = 0.0
@@ -63,14 +63,14 @@ class MLFeatureExtractor:
             now = pd.Timestamp.now()
             recent_15m = df_error[df_error['timestamp'] >= (now - pd.Timedelta(minutes=15))]
             recent_30m = df_error[df_error['timestamp'] >= (now - pd.Timedelta(minutes=30))]
-            
+
             count_15m = len(recent_15m)
             count_prev_15m = len(recent_30m) - count_15m
-            failure_rate_15m = count_15m / 900.0  
-            
+            failure_rate_15m = count_15m / 900.0
+
             rate_prev = count_prev_15m / 900.0
             error_velocity = (failure_rate_15m - rate_prev) / 900.0
-            
+
         # 3. Retry Patterns (Real data from retry_metrics.csv)
         avg_retries_per_event = 0.0
         max_retry_chain = 0
@@ -78,7 +78,7 @@ class MLFeatureExtractor:
             recent_retries = df_retry.tail(50)
             avg_retries_per_event = float(recent_retries['retry_count'].mean())
             max_retry_chain = int(recent_retries['retry_count'].max())
-        
+
         # 4. Certification Success Rate (Real data from certification_metrics.csv)
         cert_success = 0.0
         if not df_cert.empty and 'success_rate_percent' in df_cert.columns:
@@ -96,7 +96,7 @@ class MLFeatureExtractor:
                 val_variance = float(recent_scores.var())
                 if np.isnan(val_variance):
                     val_variance = 0.0
-        
+
         # 6. Execution Bottlenecks (Find component with max latency)
         bottleneck_comp = 0
         bottleneck_lat = 0.0
@@ -118,7 +118,7 @@ class MLFeatureExtractor:
                 current_q = depths.iloc[-1]
                 if std_q > 0:
                     queue_zscore = float((current_q - mean_q) / std_q)
-                    
+
         latency_zscore = 0.0
         if not df_latency.empty and 'latency_ms' in df_latency.columns:
             lats = df_latency['latency_ms']
@@ -148,8 +148,20 @@ class MLFeatureExtractor:
             throughput_5m = count_5m / 300.0
 
         # 10. Resource Utilization
-        cpu_pct = psutil.cpu_percent(interval=None)
-        mem_pct = psutil.virtual_memory().percent
+        try:
+            try:
+                from control_plane.backend.app.main import get_debounced_system_metrics
+            except ImportError:
+                from backend.app.main import get_debounced_system_metrics
+            cpu_val, mem_val = get_debounced_system_metrics()
+            cpu_pct = float(cpu_val) if cpu_val is not None else 0.0
+            mem_pct = float(mem_val) if mem_val is not None else 0.0
+        except Exception:
+            cpu_pct = 0.0
+            try:
+                mem_pct = float(psutil.virtual_memory().percent)
+            except Exception:
+                mem_pct = 0.0
 
         return TelemetryFeatureVector(
             latency_ema_p50=round(latency_p50, 2),
