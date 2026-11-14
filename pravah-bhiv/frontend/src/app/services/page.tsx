@@ -3,6 +3,7 @@
 import React from 'react';
 import { useObserverStatus, usePostOverride, useDependencyTopology } from '../../hooks/useBackend';
 import type { DependencyNode } from '../../types';
+import { ServiceUrlLink } from '../../components/ServiceUrlLink';
 import {
   Activity,
   RefreshCw,
@@ -113,7 +114,9 @@ export default function Services() {
                         <span className="truncate max-w-[140px]" title={svc.name}>{svc.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-3 text-muted-foreground select-all max-w-[190px] truncate">{svc.url}</td>
+                    <td className="py-3 px-3 text-muted-foreground select-all max-w-[200px] overflow-hidden">
+                      <ServiceUrlLink url={svc.url} truncateClass="truncate max-w-[190px]" />
+                    </td>
                     <td className="py-3 px-3 font-semibold text-foreground whitespace-nowrap font-mono">{svc.latency_ms} ms</td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       <span className={getCanonicalBadge(svc.canonical_state || svc.status)}>

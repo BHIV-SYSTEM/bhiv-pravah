@@ -11,6 +11,7 @@ Implements requirements 1, 2, 3, 4, 6, and 7:
 - Unified product health aggregation separating platform from product tiers
 """
 
+import os
 import re
 import time
 import uuid
@@ -474,11 +475,35 @@ class ServiceHealthTracker:
     """
     Centralized health tracking engine implementing the 5 canonical states,
     telemetry diagnostics, performance tracking, traffic counters, and incident correlation.
+    Includes damping hysteresis and consecutive failure/success tracking to eliminate
+    flapping between Healthy and Degraded states.
     """
 
-    def __init__(self, poll_interval_sec: float = 10.0, sla_latency_ms: float = 500.0):
+    def __init__(
+        self,
+        poll_interval_sec: float = 10.0,
+        sla_latency_ms: float = 500.0,
+        degradation_threshold: Optional[int] = None,
+        recovery_threshold: Optional[int] = None,
+        unreachable_threshold: Optional[int] = None,
+    ):
         self.poll_interval = poll_interval_sec
         self.sla_latency = sla_latency_ms
+        self.degradation_threshold = (
+            degradation_threshold
+            if degradation_threshold is not None
+            else int(os.getenv("PRAVAH_DEGRADATION_THRESHOLD", "2"))
+        )
+        self.recovery_threshold = (
+            recovery_threshold
+            if recovery_threshold is not None
+            else int(os.getenv("PRAVAH_RECOVERY_THRESHOLD", "1"))
+        )
+        self.unreachable_threshold = (
+            unreachable_threshold
+            if unreachable_threshold is not None
+            else int(os.getenv("PRAVAH_UNREACHABLE_THRESHOLD", "2"))
+        )
         self.services: Dict[str, Dict[str, Any]] = {}
 
         # Dedicated Traffic Monitors per event source
@@ -548,7 +573,11 @@ class ServiceHealthTracker:
                 "url": url,
                 "tier": tier,
                 "status": ServiceState.NOT_MONITORED.value,
+                "raw_status": ServiceState.NOT_MONITORED.value,
                 "consecutive_failures": 0,
+                "consecutive_successes": 0,
+                "consecutive_degraded": 0,
+                "consecutive_unreachable": 0,
                 "first_failure_time": None,
                 "last_successful_check": None,
                 "last_checked": None,
@@ -558,6 +587,7 @@ class ServiceHealthTracker:
                 "http_status": None,
                 "content_type": None,
                 "latency_ms": None,
+                "rolling_avg_latency_ms": None,
             }
             self.latency_reservoirs[name] = LatencyReservoir()
 
@@ -573,7 +603,11 @@ class ServiceHealthTracker:
         content_type: Optional[str] = None,
         tier: str = "product",
     ) -> Dict[str, Any]:
-        """Processes and records a single health check probe."""
+        """
+        Processes and records a single health check probe.
+        Applies hysteresis damping and consecutive threshold evaluation to stabilize
+        status indicators and prevent rapid oscillation between HEALTHY and DEGRADED.
+        """
         now_dt = datetime.now(timezone.utc)
         now_iso = now_dt.isoformat()
 
@@ -595,49 +629,132 @@ class ServiceHealthTracker:
 
         clean_detail = sanitize_html_detail(raw_detail, http_status)
 
-        # Categorize failure & evaluate canonical state
+        # Compute rolling latency statistics
+        stats = self.latency_reservoirs[name].compute_stats()
+        rolling_avg = stats.get("avg_ms")
+        svc["rolling_avg_latency_ms"] = round(rolling_avg, 1) if rolling_avg is not None else round(latency_ms, 1)
+
+        # 1. Evaluate RAW probe result from this single sample
         if error_type == "connection_refused" or (not ok and http_status is None and error_type != "timeout"):
-            new_status = ServiceState.UNREACHABLE.value
+            raw_status = ServiceState.UNREACHABLE.value
             cat = FailureCategory.CONNECTION_REFUSED.value
             reason = f"Connection refused to {url}"
         elif error_type == "timeout" or (http_status is None and "timed out" in str(raw_detail).lower()):
-            new_status = ServiceState.DEGRADED.value
+            raw_status = ServiceState.DEGRADED.value
             cat = FailureCategory.TIMEOUT.value
             reason = f"Request timed out after {latency_ms:.1f}ms"
             self.timeout_count += 1
         elif not ok:
-            new_status = ServiceState.DEGRADED.value
+            raw_status = ServiceState.DEGRADED.value
             cat = FailureCategory.HTTP_ERROR.value
             reason = f"HTTP {http_status}: {clean_detail}"
         else:
             # Response was HTTP 2xx/3xx
-            # Check if dependencies are degraded (cascading check)
             has_dep_failure, failed_dep = self.dep_graph.check_cascading_impact(name, self.services)
             if has_dep_failure:
-                new_status = ServiceState.DEGRADED.value
+                raw_status = ServiceState.DEGRADED.value
                 cat = FailureCategory.DEPENDENCY_FAILURE.value
                 reason = f"Dependency '{failed_dep}' is currently degraded or unreachable"
             elif latency_ms > self.sla_latency:
-                new_status = ServiceState.DEGRADED.value
+                raw_status = ServiceState.DEGRADED.value
                 cat = FailureCategory.NONE.value
                 reason = f"High latency ({latency_ms:.1f}ms exceeds {self.sla_latency:.0f}ms SLA)"
             else:
-                new_status = ServiceState.HEALTHY.value
+                raw_status = ServiceState.HEALTHY.value
                 cat = FailureCategory.NONE.value
                 reason = None
+
+        svc["raw_status"] = raw_status
+        svc["raw_detail"] = clean_detail
+        svc["raw_category"] = cat
+
+        # 2. Hysteresis & Threshold State Machine for Stabilized Display Status
+        current_status = svc.get("status", ServiceState.NOT_MONITORED.value)
+
+        if raw_status == ServiceState.HEALTHY.value:
+            consecutive_successes = svc.get("consecutive_successes", 0) + 1
+            svc["consecutive_successes"] = consecutive_successes
+            svc["consecutive_degraded"] = 0
+            svc["consecutive_unreachable"] = 0
+
+            if current_status in (ServiceState.HEALTHY.value, ServiceState.NOT_MONITORED.value, ServiceState.STALE.value):
+                new_status = ServiceState.HEALTHY.value
+                consecutive_failures = 0
+                cat = FailureCategory.NONE.value
+                reason = None
+            else:
+                # Recovering from DEGRADED or UNREACHABLE: require recovery_threshold consecutive healthy checks
+                if consecutive_successes >= self.recovery_threshold:
+                    new_status = ServiceState.HEALTHY.value
+                    consecutive_failures = 0
+                    cat = FailureCategory.NONE.value
+                    reason = None
+                else:
+                    new_status = ServiceState.DEGRADED.value
+                    consecutive_failures = max(0, svc.get("consecutive_failures", 0) - 1)
+                    cat = FailureCategory.NONE.value
+                    reason = f"Recovering ({consecutive_successes}/{self.recovery_threshold} healthy checks)"
+        else:
+            # Probe failed (Degraded or Unreachable)
+            svc["consecutive_successes"] = 0
+            consecutive_failures = svc.get("consecutive_failures", 0) + 1
+            svc["consecutive_failures"] = consecutive_failures
+
+            if raw_status == ServiceState.DEGRADED.value:
+                consecutive_degraded = svc.get("consecutive_degraded", 0) + 1
+                svc["consecutive_degraded"] = consecutive_degraded
+                svc["consecutive_unreachable"] = 0
+
+                if current_status == ServiceState.HEALTHY.value:
+                    if consecutive_degraded >= self.degradation_threshold:
+                        new_status = ServiceState.DEGRADED.value
+                    else:
+                        # Transient fluctuation damped: remain HEALTHY until degradation_threshold is met
+                        new_status = ServiceState.HEALTHY.value
+                        cat = FailureCategory.NONE.value
+                        reason = None
+                elif current_status in (ServiceState.NOT_MONITORED.value, ServiceState.STALE.value):
+                    new_status = ServiceState.DEGRADED.value
+                elif current_status == ServiceState.UNREACHABLE.value:
+                    new_status = ServiceState.DEGRADED.value
+                else:
+                    new_status = ServiceState.DEGRADED.value
+
+            else:
+                # raw_status == UNREACHABLE
+                consecutive_unreachable = svc.get("consecutive_unreachable", 0) + 1
+                svc["consecutive_unreachable"] = consecutive_unreachable
+                svc["consecutive_degraded"] = 0
+
+                if current_status == ServiceState.HEALTHY.value:
+                    if consecutive_unreachable >= self.unreachable_threshold or self.unreachable_threshold <= 1:
+                        new_status = ServiceState.UNREACHABLE.value
+                    else:
+                        new_status = ServiceState.DEGRADED.value
+                elif current_status in (ServiceState.NOT_MONITORED.value, ServiceState.STALE.value):
+                    new_status = ServiceState.UNREACHABLE.value
+                else:
+                    if (
+                        consecutive_unreachable >= self.unreachable_threshold
+                        or consecutive_failures >= self.unreachable_threshold
+                        or self.unreachable_threshold <= 1
+                    ):
+                        new_status = ServiceState.UNREACHABLE.value
+                    else:
+                        new_status = ServiceState.DEGRADED.value
 
         svc["status"] = new_status
         svc["failure_category"] = cat
         svc["failure_reason"] = reason
         svc["http_status"] = http_status
 
-        if new_status == ServiceState.HEALTHY.value:
+        if new_status == ServiceState.HEALTHY.value and raw_status == ServiceState.HEALTHY.value:
             svc["consecutive_failures"] = 0
             svc["first_failure_time"] = None
             svc["failure_duration_seconds"] = 0.0
             svc["last_successful_check"] = now_iso
-        else:
-            svc["consecutive_failures"] = svc.get("consecutive_failures", 0) + 1
+        elif raw_status != ServiceState.HEALTHY.value:
+            svc["consecutive_failures"] = consecutive_failures
             if not svc.get("first_failure_time"):
                 svc["first_failure_time"] = now_iso
                 svc["failure_duration_seconds"] = 0.0
@@ -806,16 +923,20 @@ class ServiceHealthTracker:
                 "name": name,
                 "url": info.get("url"),
                 "status": info.get("status"),
+                "raw_status": info.get("raw_status", info.get("status")),
                 "tier": tier,
                 "consecutive_failures": info.get("consecutive_failures", 0),
+                "consecutive_successes": info.get("consecutive_successes", 0),
                 "last_successful_check": info.get("last_successful_check"),
                 "last_checked": info.get("last_checked"),
                 "failure_reason": info.get("failure_reason"),
                 "failure_category": info.get("failure_category"),
                 "failure_duration_seconds": info.get("failure_duration_seconds", 0.0),
                 "http_status": info.get("http_status"),
+                "latency_ms": info.get("latency_ms"),
                 "latency_p95_ms": svc_perf.get("p95_ms") if svc_perf.get("p95_ms") is not None else info.get("latency_ms"),
                 "latency_avg_ms": svc_perf.get("avg_ms"),
+                "rolling_avg_latency_ms": info.get("rolling_avg_latency_ms"),
                 "dependencies": self.dep_graph.get_dependencies_for(name),
             }
 

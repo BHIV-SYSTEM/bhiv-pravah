@@ -10,6 +10,7 @@ import {
   useIncidents
 } from '../hooks/useBackend';
 import type { IncidentItem, UnifiedProductItem } from '../types';
+import { ServiceUrlLink } from '../components/ServiceUrlLink';
 import {
   Activity,
   Cpu,
@@ -272,10 +273,10 @@ export default function Dashboard() {
                   customerProducts.map((p: UnifiedProductItem, idx: number) => (
                     <tr key={idx} className="hover:bg-secondary/20">
                       <td className="py-2.5 font-semibold text-foreground flex items-center gap-1.5">
-                        <Server className="w-3.5 h-3.5 text-muted-foreground" />
-                        <div>
+                        <Server className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <div className="overflow-hidden">
                           <div>{p.name}</div>
-                          <div className="text-[9px] text-muted-foreground font-normal max-w-[150px] truncate">{p.url}</div>
+                          <ServiceUrlLink url={p.url} truncateClass="text-[9px] max-w-[170px]" />
                         </div>
                       </td>
                       <td className="py-2.5">
@@ -315,9 +316,9 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {platformComponents.map((comp: UnifiedProductItem, idx: number) => (
               <div key={idx} className="bg-secondary/30 border border-border/40 rounded-lg p-2.5 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-foreground">{comp.name}</span>
-                  <span className="text-[9px] text-muted-foreground max-w-[120px] truncate">{comp.url || 'Internal Service'}</span>
+                <div className="flex flex-col overflow-hidden max-w-[140px]">
+                  <span className="text-xs font-bold text-foreground truncate">{comp.name}</span>
+                  <ServiceUrlLink url={comp.url} truncateClass="text-[9px] max-w-[130px]" />
                 </div>
                 <span className={`px-2 py-0.5 rounded border text-[9px] font-bold uppercase ${getCanonicalBadge(comp.status)}`}>
                   {comp.status}
