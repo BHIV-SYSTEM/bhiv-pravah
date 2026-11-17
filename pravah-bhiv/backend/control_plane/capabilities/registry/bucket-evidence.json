@@ -1,0 +1,29 @@
+{
+  "registry_version": "1.0",
+  "registry_kind": "capability",
+  "capability_id": "bucket-evidence",
+  "capability_name": "evidence_and_provenance_storage",
+  "capability_type": "evidence_store",
+  "owner": {
+    "group": "group4",
+    "module_id": "bucket"
+  },
+  "maturity": "V1",
+  "status": "BLOCKED",
+  "runtime": {
+    "service_hosted": true,
+    "endpoint": null
+  },
+  "produces": [
+    "evidence_artifact",
+    "provenance_record"
+  ],
+  "metadata": {
+    "implementation_status": "PRESENT",
+    "remote_runtime_status": "UNAVAILABLE",
+    "remote_observation": "HTTP_503",
+    "fallback_status": "EPHEMERAL_TUNNEL",
+    "integration_status": "RUNTIME_ENDPOINT_REQUIRED",
+    "note": "Evidence implementation exists, but a stable remote endpoint is not currently verified."
+  }
+}

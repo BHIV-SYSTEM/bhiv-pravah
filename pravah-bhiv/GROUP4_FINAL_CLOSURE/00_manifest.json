@@ -1,0 +1,31 @@
+{
+  "closure_version": "group4.phase16.closure.v1",
+  "closure_status": "CONTROLLED_CLOSURE_COMPLETE",
+  "operational_status": "NOT_OPERATIONALLY_EXECUTED",
+  "evidence_classification": "CONTROLLED",
+  "lineage": {
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001",
+    "action_request_id": "ar-ac1ed033ff9e2941e05c28c8"
+  },
+  "temporal_ruling": {
+    "ruling": "ALLOW",
+    "action_eligibility": true,
+    "abstention_required": false
+  },
+  "verification_scope": {
+    "group4_lineage_validation": "PASS",
+    "governance_enforcement": "PASS",
+    "duplicate_idempotency": "PASS",
+    "retrieval_preservation": "PASS",
+    "live_cross_group_registry_resolution": "PENDING"
+  },
+  "non_claims": [
+    "No physical action was executed",
+    "No live production execution was performed",
+    "No scientific observation was modified",
+    "No Group 3 provenance was replaced",
+    "No evidence was upgraded from CONTROLLED to PHYSICAL or LIVE"
+  ]
+}

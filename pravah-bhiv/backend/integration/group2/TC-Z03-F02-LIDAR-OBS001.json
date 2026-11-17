@@ -1,0 +1,30 @@
+{
+  "context_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+  "parameter_name": "expected_canopy_height",
+  "parameter_value": {
+    "value": 4.5,
+    "range": [3.0, 6.0],
+    "unit": "m"
+  },
+  "valid_from": "2020-01-01T00:00:00Z",
+  "valid_to": "2023-12-31T23:59:59Z",
+  "location_polygon": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [72.94, 19.12],
+        [72.95, 19.12],
+        [72.95, 19.13],
+        [72.94, 19.13],
+        [72.94, 19.12]
+      ]
+    ]
+  },
+  "source_citation": "Simard et al. (2019) / NASA TanDEM-X Global Mangrove Canopy Height",
+  "source_url": "https://daac.ornl.gov/cgi-bin/dsviewer.pl?ds_id=1665",
+  "source_doi": "10.3334/ORNLDAAC/1665",
+  "confidence_score": 0.85,
+  "validation_status": "VERIFIED",
+  "validation_evidence": "Global baseline canopy height map derived from TanDEM-X data establishes an expected canopy height range of 3.0 m to 6.0 m (average ~4.5 m) for the specific Thane Creek coordinates (19.1288, 72.9421)."
+}

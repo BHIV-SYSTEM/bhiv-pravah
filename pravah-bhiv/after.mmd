@@ -1,0 +1,48 @@
+flowchart LR
+  subgraph Producers[Instrumented Services]
+    Services[Services (apps)]
+    SDKs[OTel SDKs/exporters]
+  end
+
+  subgraph Observability[Rayyan - Canonical Stream]
+    OTLP[OTLP Collector]
+    RStream[SSE / Kafka / Journal]
+    Prom[Prometheus / TSDB]
+    Traces[Tempo/Jaeger]
+    Logs[Loki/ELK]
+  end
+
+  subgraph Control[Shivam - Control Plane]
+    AppRegistry[App Registry (canonical)]
+    Orchestrator[Executer/Orchestrator]
+    PollerAgent[Runtime Poller (agent)]
+  end
+
+  subgraph Decision[Ritesh - Enforcement & Decision Brain]
+    DecisionBrain[Decision Brain (canonical)]
+    Sarathi[Sarathi Enforcement]
+    Lineage[Lineage Store & Verifier]
+  end
+
+  Services --> SDKs --> OTLP
+  PollerAgent --> OTLP
+  OTLP --> Prom
+  OTLP --> Traces
+  OTLP --> Logs
+  OTLP --> RStream
+
+  DecisionBrain --> Lineage
+  DecisionBrain --> Sarathi
+  Lineage --> RStream
+
+  AppRegistry --> Orchestrator
+  Orchestrator --> DecisionBrain
+  RStream --> Aggregator[Aggregator Service]
+  Aggregator --> Dashboard[Next.js Exec Dashboard]
+  Prom --> Grafana[Grafana SRE Dashboards]
+  Traces --> Jaeger
+  Logs --> Loki
+
+  note right of Aggregator
+    Aggregator composes curated data from Prometheus, RStream, Decision API, and App Registry
+  end

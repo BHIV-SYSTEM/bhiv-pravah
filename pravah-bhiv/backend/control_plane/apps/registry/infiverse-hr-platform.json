@@ -1,0 +1,24 @@
+{
+  "name": "infiverse-hr-platform",
+  "type": "backend",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/INFIVERSE-HR-PLATFORM",
+  "source_type": "python",
+  "build_command": "pip install -r backend/requirements.txt",
+  "start_command": "python backend/run_services.py",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

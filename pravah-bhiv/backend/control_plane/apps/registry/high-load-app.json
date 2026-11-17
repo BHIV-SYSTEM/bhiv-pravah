@@ -1,0 +1,9 @@
+{
+  "name": "high-load-app",
+  "type": "python",
+  "start_command": "python server.py",
+  "environments": [
+    "dev"
+  ],
+  "port": 8081
+}

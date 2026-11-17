@@ -1,0 +1,262 @@
+{
+  "schema_version": "2.0",
+  "event": "ecosystem_runtime_proof_summary",
+  "timestamp": "2026-07-25T05:06:17.450354+00:00",
+  "platform": "yotta",
+  "constitutional_boundaries": {
+    "observability_not_authority": true,
+    "replay_not_truth": true,
+    "telemetry_not_governance": true,
+    "visibility_not_execution_rights": true
+  },
+  "escalation_paths": {
+    "strategic_placement": "TMS",
+    "governance": "GC",
+    "data_provenance": "MDU"
+  },
+  "proofs": {
+    "A_multi_product_participation": {
+      "timestamp": "2026-07-25T05:06:17.357957+00:00",
+      "event": "multi_product_runtime_participation",
+      "execution_id": "exec-ecosystem-multi-product",
+      "products_participating": [
+        "gurukul-backend",
+        "infiverse-hr-platform",
+        "parikshak-system",
+        "trade-bot",
+        "bhiv-sarathi",
+        "bhiv-karma",
+        "bhiv-keshav-4"
+      ],
+      "sources_in_journal": [
+        "bhiv-karma",
+        "bhiv-keshav-4",
+        "bhiv-sarathi",
+        "gurukul-backend",
+        "infiverse-hr-platform",
+        "parikshak-system",
+        "trade-bot"
+      ],
+      "event_count": 7,
+      "all_products_present": true,
+      "provenance_authority": "passive_observer",
+      "verdict": "PASS"
+    },
+    "B_cross_product_replay_continuity": {
+      "timestamp": "2026-07-25T05:06:17.376480+00:00",
+      "event": "cross_product_replay_continuity",
+      "execution_id": "exec-cross-product-replay",
+      "interleave_pattern": [
+        "gurukul-backend",
+        "infiverse-hr-platform",
+        "gurukul-backend",
+        "bhiv-sarathi",
+        "gurukul-backend"
+      ],
+      "distinct_sources": [
+        "bhiv-sarathi",
+        "gurukul-backend",
+        "infiverse-hr-platform"
+      ],
+      "sequence_continuity": true,
+      "hash_chain_intact": true,
+      "cross_product_verified": true,
+      "verdict": "PASS"
+    },
+    "C_e2e_execution_lineage": {
+      "timestamp": "2026-07-25T05:06:17.389480+00:00",
+      "event": "e2e_execution_lineage",
+      "execution_id": "exec-e2e-lineage",
+      "lifecycle_states": [
+        "CREATED",
+        "APPROVED",
+        "EXECUTING",
+        "COMPLETED"
+      ],
+      "lifecycle_sources": [
+        "gurukul-backend",
+        "parikshak-system",
+        "bhiv-sarathi",
+        "trade-bot"
+      ],
+      "complete_lifecycle": true,
+      "multi_product_lineage": true,
+      "state_hash": "7ae8957abb12dbf897379ef17d6ba05fa0854123aed5d26c84477eaa7b814580",
+      "hash_chain_valid": true,
+      "sequence_valid": true,
+      "authority_chain": [
+        "PRAVAH_OBSERVABILITY"
+      ],
+      "verdict": "PASS"
+    },
+    "D_degraded_runtime_validation": {
+      "timestamp": "2026-07-25T05:06:17.389994+00:00",
+      "event": "degraded_runtime_validation",
+      "doctrine_module": "LegitimacyDoctrine",
+      "test_cases": [
+        {
+          "label": "all_available",
+          "actual_legitimacy": "LEGITIMATE_VALID",
+          "actual_runtime": "ACTIVE",
+          "actual_action": "EXECUTE",
+          "expected_legitimacy": "LEGITIMATE_VALID",
+          "expected_runtime": "ACTIVE",
+          "expected_action": "EXECUTE",
+          "match": true
+        },
+        {
+          "label": "rl_unavailable",
+          "actual_legitimacy": "LEGITIMATE_DEGRADED",
+          "actual_runtime": "DEGRADED",
+          "actual_action": "DEGRADED_ALLOWED",
+          "expected_legitimacy": "LEGITIMATE_DEGRADED",
+          "expected_runtime": "DEGRADED",
+          "expected_action": "DEGRADED_ALLOWED",
+          "match": true
+        },
+        {
+          "label": "missing_db_index",
+          "actual_legitimacy": "LEGITIMATE_AMBIGUOUS",
+          "actual_runtime": "HALTED",
+          "actual_action": "HALT",
+          "expected_legitimacy": "LEGITIMATE_AMBIGUOUS",
+          "expected_runtime": "HALTED",
+          "expected_action": "HALT",
+          "match": true
+        },
+        {
+          "label": "invalid_signature",
+          "actual_legitimacy": "ILLEGITIMATE",
+          "actual_runtime": "BLOCKED",
+          "actual_action": "REJECT",
+          "expected_legitimacy": "ILLEGITIMATE",
+          "expected_runtime": "BLOCKED",
+          "expected_action": "REJECT",
+          "match": true
+        },
+        {
+          "label": "partial_replay_gap",
+          "actual_legitimacy": "LEGITIMATE_AMBIGUOUS",
+          "actual_runtime": "HALTED",
+          "actual_action": "REPLAY_ONLY",
+          "expected_legitimacy": "LEGITIMATE_AMBIGUOUS",
+          "expected_runtime": "HALTED",
+          "expected_action": "REPLAY_ONLY",
+          "match": true
+        }
+      ],
+      "all_cases_passed": true,
+      "constitutional_note": "Observability != Authority; degraded runtime does not grant elevated permissions",
+      "verdict": "PASS"
+    },
+    "E_restart_survival_ecosystem": {
+      "timestamp": "2026-07-25T05:06:17.405736+00:00",
+      "event": "restart_survival_ecosystem",
+      "execution_id": "exec-restart-ecosystem",
+      "products_before": [
+        "gurukul-backend",
+        "infiverse-hr-platform",
+        "bhiv-sarathi",
+        "trade-bot"
+      ],
+      "products_after_restart": [
+        "bhiv-sarathi",
+        "gurukul-backend",
+        "infiverse-hr-platform",
+        "trade-bot"
+      ],
+      "all_products_survived": true,
+      "lineage_match": true,
+      "state_hash_before": "47e0934bdf5193b4011ee14e3e9f9d288949bc0ff518d253b0b2b3918fe54ea4",
+      "state_hash_after": "47e0934bdf5193b4011ee14e3e9f9d288949bc0ff518d253b0b2b3918fe54ea4",
+      "state_hash_match": true,
+      "recovery_ready": true,
+      "verdict": "PASS"
+    },
+    "F_recovery_correctness": {
+      "timestamp": "2026-07-25T05:06:17.437984+00:00",
+      "event": "recovery_correctness_ecosystem",
+      "execution_id": "exec-recovery-ecosystem",
+      "clean_recovery": {
+        "expected_hash": "431ba131d7cbb40a9281dbb71486282f645b928390d443bfae7c9aad102e7f9c",
+        "recovered_hash": "431ba131d7cbb40a9281dbb71486282f645b928390d443bfae7c9aad102e7f9c",
+        "ready": true,
+        "status": "READY"
+      },
+      "corrupted_recovery": {
+        "expected_hash": "431ba131d7cbb40a9281dbb71486282f645b928390d443bfae7c9aad102e7f9c",
+        "recovered_hash": null,
+        "ready": false,
+        "status": "RECOVERY_FAILED",
+        "failures": [
+          "hash_verification_failed:HASH_CHAIN"
+        ]
+      },
+      "verdict": "PASS"
+    },
+    "G_observability_consistency": {
+      "timestamp": "2026-07-25T05:06:17.448943+00:00",
+      "event": "observability_consistency_ecosystem",
+      "execution_id": "exec-obs-ecosystem",
+      "products_observed": [
+        "gurukul-backend",
+        "infiverse-hr-platform",
+        "bhiv-sarathi",
+        "trade-bot",
+        "ttg"
+      ],
+      "replay_index_state": {
+        "event_count": 5,
+        "last_event_hash": "479a4f4e19d356ad"
+      },
+      "append_only_log_state": {
+        "event_count": 5,
+        "last_event_hash": "479a4f4e19d356ad"
+      },
+      "states_agreement": true,
+      "constitutional_note": "Observability != Authority: index state is read-only mirror of journal",
+      "verdict": "PASS"
+    },
+    "H_production_deployment": {
+      "timestamp": "2026-07-25T05:06:17.450020+00:00",
+      "event": "production_deployment_validation",
+      "platform": "yotta",
+      "target": "bare_metal_vm_docker_compose_systemd",
+      "checks": {
+        "docker_compose_prod_profile": true,
+        "docker_compose_observer_service": true,
+        "docker_compose_decision_brain": true,
+        "docker_compose_log_rotation": true,
+        "docker_compose_resource_limits": true,
+        "yotta_manifest_exists": true,
+        "yotta_loopback_redis": true,
+        "yotta_restart_always": true,
+        "systemd_unit_exists": true,
+        "prod_env_demo_mode_false": true,
+        "prod_env_demo_freeze_false": true,
+        "prod_env_sspl_marker": true,
+        "prometheus_docker_dns": true,
+        "prometheus_observer_target": true,
+        "prometheus_decision_brain_target": true,
+        "health_validator_exists": true,
+        "linux_startup_script": true,
+        "windows_startup_script": true,
+        "deployment_docs": true
+      },
+      "all_checks_passed": true,
+      "failed_checks": [],
+      "verdict": "PASS"
+    }
+  },
+  "overall_verdict": "PASS",
+  "verdict_breakdown": {
+    "A_multi_product_participation": "PASS",
+    "B_cross_product_replay_continuity": "PASS",
+    "C_e2e_execution_lineage": "PASS",
+    "D_degraded_runtime_validation": "PASS",
+    "E_restart_survival_ecosystem": "PASS",
+    "F_recovery_correctness": "PASS",
+    "G_observability_consistency": "PASS",
+    "H_production_deployment": "PASS"
+  }
+}

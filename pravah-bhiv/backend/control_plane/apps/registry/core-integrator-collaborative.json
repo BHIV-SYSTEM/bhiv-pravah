@@ -1,0 +1,8 @@
+{
+  "app_id": "core-integrator-collaborative-",
+  "name": "Core Integrator Collaborative",
+  "port": 8001,
+  "health_endpoint": "/health",
+  "telemetry_target": "/api/runtime",
+  "hmac_enabled": true
+}

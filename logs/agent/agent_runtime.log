@@ -1,0 +1,6 @@
+2026-09-07 15:37:19,171 - agent.agent-25050ee4.runtime - INFO - Initializing system components | Context: {"timestamp": "2026-09-07T10:07:19.171285", "agent_id": "agent-25050ee4", "agent_state": "idle"}
+2026-09-07 15:37:19,172 - agent.agent-25050ee4.runtime - INFO - Redis event bus initialized | Context: {"timestamp": "2026-09-07T10:07:19.172508", "agent_id": "agent-25050ee4", "agent_state": "idle"}
+2026-09-07 15:37:19,188 - agent.agent-25050ee4.runtime - INFO - Perception adapters initialized: 4 adapters | Context: {"timestamp": "2026-09-07T10:07:19.188578", "agent_id": "agent-25050ee4", "agent_state": "idle"}
+2026-09-07 15:37:19,189 - agent.agent-25050ee4.runtime - INFO - All components initialized | Context: {"timestamp": "2026-09-07T10:07:19.189101", "agent_id": "agent-25050ee4", "agent_state": "idle"}
+2026-09-07 15:37:19,189 - agent.agent-25050ee4.runtime - INFO - Agent initialized: id=agent-25050ee4, env=dev, version=1.0.0 | Context: {"timestamp": "2026-09-07T10:07:19.189251", "agent_id": "agent-25050ee4", "agent_state": "idle"}
+2026-09-07 15:37:19,190 - agent.agent-25050ee4.runtime - INFO - Autonomous operation: agent_initialization

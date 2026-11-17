@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: pravah-decision-brain
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements-deploy.txt
+    startCommand: uvicorn control_plane.backend.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DEMO_MODE
+        value: "true"
+      - key: DEMO_FREEZE_MODE
+        value: "true"
+      - key: BACKEND_CORS_ORIGINS
+        value: "http://localhost:4500,http://localhost:3000,http://localhost:8000"
+      - key: BACKEND_CORS_ORIGIN_REGEX
+        value: ""
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        generateValue: true
+    healthCheckPath: /health

@@ -1,0 +1,13 @@
+{
+  "observation_id": "TC-Z03-EXT-OPENMETEO-OBS001",
+  "canonical_record_id": "CR-b4615a27-7ab1-4bde-a078-a56fa0f2414c",
+  "context_id": null,
+  "ruling": "ABSTAIN",
+  "action_eligibility": false,
+  "abstention_required": true,
+  "action_request": null,
+  "evidence": {
+    "source": "Open-Meteo.com — EXTERNAL LIVE API",
+    "observation_timestamp": "2026-08-25T11:00:00Z"
+  }
+}

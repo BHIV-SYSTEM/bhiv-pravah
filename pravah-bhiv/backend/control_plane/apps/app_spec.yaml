@@ -1,0 +1,44 @@
+
+apiVersion: v1
+kind: AppSpec
+metadata:
+  name: sample-app
+  version: "1.0.0"
+spec:
+  backend:
+    name: sample_backend
+    type: python-flask
+    port: 5000
+    healthcheck: /health
+    dependencies:
+      - flask==2.3.3
+    build:
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 2
+      resources:
+        cpu: "0.5"
+        memory: "512Mi"
+  
+  frontend:
+    name: sample_frontend
+    type: static-html
+    port: 8080
+    build:
+      type: nginx
+    deploy:
+      replicas: 1
+      resources:
+        cpu: "0.1"
+        memory: "128Mi"
+  
+  environments:
+    dev:
+      backend_replicas: 1
+      frontend_replicas: 1
+    stage:
+      backend_replicas: 2
+      frontend_replicas: 1
+    prod:
+      backend_replicas: 3
+      frontend_replicas: 2

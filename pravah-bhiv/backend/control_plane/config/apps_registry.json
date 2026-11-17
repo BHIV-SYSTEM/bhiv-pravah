@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "local-backend",
+      "url": "http://127.0.0.1:8000",
+      "environment": "dev"
+    },
+    {
+      "name": "apps02",
+      "url": "http://127.0.0.1:8001",
+      "environment": "dev"
+    }
+  ]
+}

@@ -1,0 +1,322 @@
+
+# =============================================================================
+# Pravah Yotta Deployment Manifest
+# =============================================================================
+# Target  : Yotta Bare-Metal VM / D1 Compute — Docker Compose + systemd
+# Platform: Yotta Cloud (India)
+# Profile : prod
+#
+# Usage:
+#   docker compose -f yotta-deploy.yaml --env-file environments/prod.env \
+#     --profile prod up -d
+#
+# This file is intentionally separate from docker-compose.yml so that:
+#   - docker-compose.yml remains the multi-profile development / staging file
+#   - yotta-deploy.yaml is the single-purpose production manifest committed
+#     to the Yotta VM provisioning pipeline
+# =============================================================================
+
+version: '3.8'
+
+services:
+
+  # ----------------------------------------------------------
+  # Redis Event Bus
+  # ----------------------------------------------------------
+  pravah-redis:
+    image: redis:7-alpine
+    container_name: pravah-redis
+    restart: always
+    ports:
+      - "127.0.0.1:6379:6379"   # Bind to loopback only — not exposed externally
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --loglevel notice
+    volumes:
+      - pravah-redis-data:/data
+    networks:
+      - pravah-prod-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 640M
+
+  # ----------------------------------------------------------
+  # Control Plane API — Flask/Gunicorn (port 7000)
+  # ----------------------------------------------------------
+  pravah-control-plane:
+    image: ${REGISTRY:-local}/pravah-control-plane:${IMAGE_TAG:-prod}
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    container_name: pravah-control-plane
+    restart: always
+    ports:
+      - "0.0.0.0:7000:7000"
+    environment:
+      - ENVIRONMENT=prod
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - REDIS_HOST=pravah-redis
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-2}
+      - PORT=7000
+      - SSPL_SECRET_KEY=${SSPL_SECRET_KEY}
+      - LINEAGE_SIGNING_KEY=${LINEAGE_SIGNING_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - AUTONOMY_DECISIONS_ENABLED=${AUTONOMY_DECISIONS_ENABLED:-true}
+      - AUTONOMY_LEARNING_ENABLED=${AUTONOMY_LEARNING_ENABLED:-false}
+      - EMERGENCY_FREEZE_ENABLED=${EMERGENCY_FREEZE_ENABLED:-false}
+      - DEMO_MODE=false
+      - DEMO_FREEZE_MODE=false
+      - PRAVAH_MAIN_API=http://pravah-decision-brain:8000
+    volumes:
+      - pravah-logs:/app/logs
+      - pravah-data:/app/data
+    command: >
+      gunicorn wsgi:app
+      --workers ${GUNICORN_WORKERS:-4}
+      --worker-class sync
+      --bind 0.0.0.0:7000
+      --timeout 120
+      --keep-alive 5
+      --access-logfile /app/logs/access.log
+      --error-logfile /app/logs/error.log
+      --log-level info
+      --preload
+    depends_on:
+      pravah-redis:
+        condition: service_healthy
+    networks:
+      - pravah-prod-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1G
+
+  # ----------------------------------------------------------
+  # Decision Brain — FastAPI/Uvicorn (port 8000)
+  # ----------------------------------------------------------
+  pravah-decision-brain:
+    image: ${REGISTRY:-local}/pravah-decision-brain:${IMAGE_TAG:-prod}
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    container_name: pravah-decision-brain
+    restart: always
+    ports:
+      - "0.0.0.0:8000:8000"
+    environment:
+      - ENVIRONMENT=prod
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - REDIS_HOST=pravah-redis
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-2}
+      - PORT=8000
+      - SSPL_SECRET_KEY=${SSPL_SECRET_KEY}
+      - LINEAGE_SIGNING_KEY=${LINEAGE_SIGNING_KEY}
+      - DEMO_MODE=false
+      - DEMO_FREEZE_MODE=false
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
+    volumes:
+      - pravah-logs:/app/logs
+      - pravah-data:/app/data
+    command: >
+      uvicorn control_plane.backend.app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers ${UVICORN_WORKERS:-2}
+      --log-level info
+      --access-log
+    depends_on:
+      pravah-redis:
+        condition: service_healthy
+    networks:
+      - pravah-prod-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1G
+
+  # ----------------------------------------------------------
+  # Observer Server — FastAPI/Uvicorn (port 8600)
+  # ----------------------------------------------------------
+  pravah-observer:
+    image: ${REGISTRY:-local}/pravah-observer:${IMAGE_TAG:-prod}
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    container_name: pravah-observer
+    restart: always
+    ports:
+      - "0.0.0.0:8600:8600"
+    environment:
+      - ENVIRONMENT=prod
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - PRAVAH_OBSERVER_PORT=8600
+      - PRAVAH_CONTROL_PLANE=http://pravah-control-plane:7000
+      - PRAVAH_MAIN_API=http://pravah-decision-brain:8000
+      # External observed services — injected from prod.env
+      - PRAVAH_GURUKUL_API=${PRAVAH_GURUKUL_API}
+      - PRAVAH_HR_API=${PRAVAH_HR_API}
+      - PRAVAH_PARIKSHAK_API=${PRAVAH_PARIKSHAK_API}
+      - PRAVAH_CRM_API=${PRAVAH_CRM_API}
+      - PRAVAH_PROMPT_RUNNER_API=${PRAVAH_PROMPT_RUNNER_API}
+      - PRAVAH_TRADE_BOT_API=${PRAVAH_TRADE_BOT_API}
+      - PRAVAH_TTG_API=${PRAVAH_TTG_API}
+      - PRAVAH_UNIGURU_API=${PRAVAH_UNIGURU_API}
+      - PRAVAH_WORKFLOW_BLACKHOLE_API=${PRAVAH_WORKFLOW_BLACKHOLE_API}
+      - PRAVAH_BLOCKCHAIN_API=${PRAVAH_BLOCKCHAIN_API}
+      - PRAVAH_BHIV_KARMA=${PRAVAH_BHIV_KARMA}
+      - PRAVAH_BHIV_BUCKET=${PRAVAH_BHIV_BUCKET}
+      - PRAVAH_BHIV_CORE=${PRAVAH_BHIV_CORE}
+      - PRAVAH_BHIV_WORKFLOW=${PRAVAH_BHIV_WORKFLOW}
+      - PRAVAH_BHIV_UAO=${PRAVAH_BHIV_UAO}
+      - PRAVAH_BHIV_INSIGHT_CORE=${PRAVAH_BHIV_INSIGHT_CORE}
+      - PRAVAH_BHIV_INSIGHT_FLOW_BRIDGE=${PRAVAH_BHIV_INSIGHT_FLOW_BRIDGE}
+      - PRAVAH_BHIV_INSIGHT_FLOW_BACKEND=${PRAVAH_BHIV_INSIGHT_FLOW_BACKEND}
+      - PRAVAH_BHIV_KESHAV=${PRAVAH_BHIV_KESHAV}
+      - PRAVAH_BHIV_SARATHI=${PRAVAH_BHIV_SARATHI}
+      - PRAVAH_MASTERDB_API=${PRAVAH_MASTERDB_API}
+      - PRAVAH_MITRA_API=${PRAVAH_MITRA_API}
+      - PRAVAH_SVACS_API=${PRAVAH_SVACS_API}
+    volumes:
+      - pravah-logs:/app/logs
+      - pravah-data:/app/data
+    command: >
+      uvicorn observer_server:app
+      --host 0.0.0.0
+      --port 8600
+      --log-level info
+    depends_on:
+      pravah-control-plane:
+        condition: service_healthy
+      pravah-decision-brain:
+        condition: service_healthy
+    networks:
+      - pravah-prod-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8600/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+
+  # ----------------------------------------------------------
+  # Prometheus Metrics Scraper
+  # ----------------------------------------------------------
+  pravah-prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: pravah-prometheus
+    restart: always
+    ports:
+      - "127.0.0.1:9090:9090"   # Bind to loopback — expose via reverse proxy if needed
+    volumes:
+      - ./backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - pravah-prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+    depends_on:
+      - pravah-control-plane
+      - pravah-observer
+    networks:
+      - pravah-prod-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+
+# ----------------------------------------------------------
+# Networks
+# ----------------------------------------------------------
+networks:
+  pravah-prod-net:
+    driver: bridge
+    name: pravah-prod-network
+
+# ----------------------------------------------------------
+# Volumes — named for persistence across container restarts
+# ----------------------------------------------------------
+volumes:
+  pravah-redis-data:
+    driver: local
+    name: pravah-prod-redis-data
+  pravah-logs:
+    driver: local
+    name: pravah-prod-logs
+  pravah-data:
+    driver: local
+    name: pravah-prod-data
+  pravah-prometheus-data:
+    driver: local
+    name: pravah-prod-prometheus-data

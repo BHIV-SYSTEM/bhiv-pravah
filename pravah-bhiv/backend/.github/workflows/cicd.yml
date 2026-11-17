@@ -1,0 +1,360 @@
+name: Pravah CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+
+  # ================================================================
+  # BUILD + TEST + PUSH
+  # Builds the single shared "pravah" image from ./backend/Dockerfile,
+  # smoke-tests it locally (redis + control-plane + decision-brain +
+  # observer wired together, same as prod), then pushes to Docker Hub.
+  # ================================================================
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        run: echo "image_tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build image (load locally, do not push yet)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          load: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pravah:${{ steps.vars.outputs.image_tag }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pravah:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test the built image
+        env:
+          IMG: ${{ secrets.DOCKER_HUB_USERNAME }}/pravah:${{ steps.vars.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          docker network create pravah-test-net
+
+          echo "Starting redis..."
+          docker run -d --name test-redis --network pravah-test-net redis:7-alpine
+          timeout 60 bash -c 'until docker exec test-redis redis-cli ping; do sleep 3; done'
+
+          echo "Starting control-plane..."
+          docker run -d --name test-control-plane --network pravah-test-net \
+            -e REDIS_HOST=test-redis -e REDIS_PORT=6379 -e PORT=7000 \
+            -e SSPL_SECRET_KEY=test -e LINEAGE_SIGNING_KEY=test \
+            -p 7001:7000 "$IMG" \
+            gunicorn wsgi:app --workers 1 --worker-class sync --bind 0.0.0.0:7000 --timeout 120
+
+          echo "Starting decision-brain..."
+          docker run -d --name test-decision-brain --network pravah-test-net \
+            -e REDIS_HOST=test-redis -e REDIS_PORT=6379 -e PORT=8000 \
+            -e SSPL_SECRET_KEY=test -e LINEAGE_SIGNING_KEY=test \
+            -p 8010:8000 "$IMG" \
+            uvicorn control_plane.backend.app.main:app --host 0.0.0.0 --port 8000 --workers 1
+
+          echo "Starting observer..."
+          docker run -d --name test-observer --network pravah-test-net \
+            -e PRAVAH_CONTROL_PLANE=http://test-control-plane:7000 \
+            -e PRAVAH_MAIN_API=http://test-decision-brain:8000 \
+            -p 8602:8600 "$IMG" \
+            uvicorn observer_server:app --host 0.0.0.0 --port 8600
+
+          echo "Waiting on control-plane health..."
+          timeout 90 bash -c 'until curl -fs http://localhost:7001/api/health; do sleep 5; done'
+
+          echo "Waiting on decision-brain health..."
+          timeout 90 bash -c 'until curl -fs http://localhost:8010/health; do sleep 5; done'
+
+          echo "Waiting on observer health..."
+          timeout 90 bash -c 'until curl -fs http://localhost:8602/health; do sleep 5; done'
+
+          echo "All smoke checks passed."
+
+      - name: Tear down test containers
+        if: always()
+        run: |
+          docker rm -f test-control-plane test-decision-brain test-observer test-redis 2>/dev/null || true
+          docker network rm pravah-test-net 2>/dev/null || true
+
+      - name: Push image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/pravah:${{ steps.vars.outputs.image_tag }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/pravah:latest
+
+  # ================================================================
+  # DEPLOY
+  # Copies only docker-compose.prod.yml + env files to the VM,
+  # then pulls the freshly pushed tag and brings the stack up.
+  # ================================================================
+  deploy:
+    needs: build
+
+    if: github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create deployment directory
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          password: ${{ secrets.PROD_VM_PASSWORD }}
+          port: ${{ secrets.PROD_VM_PORT }}
+          script: |
+            set -e
+            DEPLOY_DIR="/opt/PRAVAH"
+            sudo mkdir -p "$DEPLOY_DIR"
+            sudo mkdir -p "$DEPLOY_DIR/backend/environments"
+
+            sudo chown -R $USER:$USER "$DEPLOY_DIR"
+
+            echo "Deployment directory is ready."
+
+      - name: Copy docker-compose file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          password: ${{ secrets.PROD_VM_PASSWORD }}
+          port: ${{ secrets.PROD_VM_PORT }}
+          source: "docker-compose.prod.yml,monitoring"
+          target: "/opt/PRAVAH/"
+          strip_components: 0
+
+      - name: Create environment files
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          password: ${{ secrets.PROD_VM_PASSWORD }}
+          port: ${{ secrets.PROD_VM_PORT }}
+          script: |
+            set -euo pipefail
+            cd /opt/PRAVAH
+            mkdir -p backend/environments
+
+            cat > backend/environments/dev.env << 'ENVEOF'
+            ${{ secrets.DEV_ENV }}
+            ENVEOF
+
+            cat > backend/environments/prod.env << 'ENVEOF'
+            ${{ secrets.PROD_ENV }}
+            ENVEOF
+
+            cat > backend/environments/stage.env << 'ENVEOF'
+            ${{ secrets.STAGE_ENV }}
+            ENVEOF
+
+            chmod 600 backend/environments/*.env
+
+      - name: Deploy to production
+        uses: appleboy/ssh-action@v1.2.0
+
+        env:
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+          VM_IP: ${{ secrets.VM_IP }}
+
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          password: ${{ secrets.PROD_VM_PASSWORD }}
+          port: ${{ secrets.PROD_VM_PORT }}
+
+          envs: IMAGE_TAG,VM_IP
+
+          script: |
+            set -euo pipefail
+
+            DEPLOY_DIR="/opt/PRAVAH"
+            cd "$DEPLOY_DIR"
+
+            if [ ! -f docker-compose.prod.yml ]; then
+               echo "docker-compose.prod.yml not found."
+               exit 1
+            fi
+            echo "Compose file found."
+
+            ls -lah
+
+            echo "Logging into Docker Hub..."
+            echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login \
+              --username "${{ secrets.DOCKER_HUB_USERNAME }}" \
+              --password-stdin
+
+            export PRAVAH_IMAGE_TAG="$IMAGE_TAG"
+            export VM_IP="$VM_IP"
+            echo "Deploying version: $PRAVAH_IMAGE_TAG"
+
+            echo "Pulling images..."
+            docker compose -f docker-compose.prod.yml pull
+
+            echo "Starting services..."
+            docker compose \
+              -f docker-compose.prod.yml \
+              --profile prod \
+              up -d \
+              --remove-orphans
+
+            echo "Waiting for Redis..."
+            timeout 300 bash -c '
+            until docker compose -f docker-compose.prod.yml exec -T redis redis-cli ping
+            do
+              sleep 5
+            done
+            '
+
+            echo "Checking control plane..."
+            timeout 300 bash -c "
+            until curl -fs http://\$VM_IP:7001/api/health
+            do
+              sleep 5
+            done
+            "
+
+            echo "Checking decision brain..."
+            timeout 300 bash -c "
+            until curl -fs http://\$VM_IP:8010/health
+            do
+              sleep 5
+            done
+            "
+
+            echo "Checking observer..."
+            timeout 300 bash -c "
+            until curl -fs http://\$VM_IP:8602/health
+            do
+              sleep 5
+            done
+            "
+
+            echo "All health checks passed."
+
+            if [ -f current_version ]; then
+              cp current_version previous_version
+            fi
+
+            echo "$IMAGE_TAG" > current_version
+
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "Deployment completed successfully."
+
+  # ================================================================
+  # ROLLBACK
+  # ================================================================
+  rollback:
+    needs: deploy
+
+    if: failure()
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Rollback deployment
+        uses: appleboy/ssh-action@v1.2.0
+
+        env:
+          VM_IP: ${{ secrets.VM_IP }}
+
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          password: ${{ secrets.PROD_VM_PASSWORD }}
+          port: ${{ secrets.PROD_VM_PORT }}
+
+          envs: VM_IP
+
+          script: |
+            set -euo pipefail
+
+            DEPLOY_DIR="/opt/PRAVAH"
+            cd "$DEPLOY_DIR"
+
+            if [ ! -f previous_version ]; then
+              echo "No previous version found."
+              exit 1
+            fi
+
+            PREVIOUS_TAG=$(cat previous_version)
+            echo "Rolling back to $PREVIOUS_TAG"
+
+            echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login \
+              --username "${{ secrets.DOCKER_HUB_USERNAME }}" \
+              --password-stdin
+
+            export PRAVAH_IMAGE_TAG="$PREVIOUS_TAG"
+            export VM_IP="$VM_IP"
+
+            echo "Pulling images..."
+            docker compose -f docker-compose.prod.yml pull
+
+            echo "Starting services..."
+            docker compose \
+              -f docker-compose.prod.yml \
+              --profile prod \
+              up -d \
+              --remove-orphans
+
+            echo "Waiting for Redis..."
+            timeout 300 bash -c '
+            until docker compose -f docker-compose.prod.yml exec -T redis redis-cli ping
+            do
+              sleep 5
+            done
+            '
+
+            echo "Checking Control Plane..."
+            timeout 300 bash -c "
+            until curl -fs http://\$VM_IP:7001/api/health
+            do
+              sleep 5
+            done
+            "
+
+            echo "Checking Decision Brain..."
+            timeout 300 bash -c "
+            until curl -fs http://\$VM_IP:8010/health
+            do
+              sleep 5
+            done
+            "
+
+            echo "Checking Observer..."
+            timeout 300 bash -c "
+            until curl -fs http://\$VM_IP:8602/health
+            do
+              sleep 5
+            done
+            "
+
+            echo "$PREVIOUS_TAG" > current_version
+
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "Rollback completed successfully."

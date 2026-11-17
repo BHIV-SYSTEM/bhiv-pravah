@@ -1,0 +1,20 @@
+{
+  "name": "bhiv-workflow",
+  "type": "service",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/bhiv-core-bucket-karma-prana-orchrstration-insightcore-insightflow/workflow-executor-main",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python main.py",
+  "health_endpoint": "/healthz",
+  "environments": ["dev", "stage", "prod"],
+  "port": 8003,
+  "resources": {
+    "cpu": "0.2",
+    "memory": "256Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 2,
+    "target_cpu_percent": 80
+  }
+}

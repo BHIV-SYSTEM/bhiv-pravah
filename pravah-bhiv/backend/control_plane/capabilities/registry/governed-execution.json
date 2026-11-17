@@ -1,0 +1,28 @@
+{
+  "registry_version": "1.0",
+  "registry_kind": "capability",
+  "capability_id": "governed-execution",
+  "capability_name": "governed_execution_runtime",
+  "capability_type": "governed_execution",
+  "owner": {
+    "group": "group4",
+    "module_id": "group4-governed-runtime"
+  },
+  "maturity": "V1",
+  "status": "PRESENT",
+  "runtime": {
+    "service_hosted": false,
+    "endpoint": null
+  },
+  "produces": [
+    "governance_decision",
+    "execution_result"
+  ],
+  "metadata": {
+    "implementation_status": "PRESENT",
+    "http_entrypoint": "NOT_VERIFIED",
+    "requested_contract": "/vana/execute",
+    "repository_verification": "Internal execution modules and runners found; no explicit /vana/execute route verified.",
+    "integration_status": "ADAPTER_OR_ENTRYPOINT_RESOLUTION_REQUIRED"
+  }
+}

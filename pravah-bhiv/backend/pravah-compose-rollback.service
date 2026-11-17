@@ -1,0 +1,29 @@
+[Unit]
+Description=Pravah Rollback Service (triggered on deployment failure)
+Documentation=https://github.com/your-repo/pravah
+After=pravah-compose.service
+PartOf=pravah-compose.service
+
+[Service]
+Type=oneshot
+
+# Set working directory
+WorkingDirectory=/opt/pravah
+
+# Rollback script
+ExecStart=/opt/pravah/scripts/rollback.sh
+
+# User and group
+User=root
+Group=root
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pravah-rollback
+
+# Don't auto-restart
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

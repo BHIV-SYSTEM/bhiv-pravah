@@ -1,0 +1,11 @@
+{
+  "closure_run_id": "group4-phase16-closure-run",
+  "first_delivery": {
+    "action_request_id": "ar-ac1ed033ff9e2941e05c28c8"
+  },
+  "second_delivery": {
+    "action_request_id": "ar-ac1ed033ff9e2941e05c28c8"
+  },
+  "idempotent": true,
+  "stored_record_count": 1
+}

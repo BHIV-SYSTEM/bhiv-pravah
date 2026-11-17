@@ -1,0 +1,17 @@
+{
+  "test": "missing_observation_id",
+  "input": {
+    "contract_version": "group2.temporal-applicability.v1",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001",
+    "ruling": "ALLOW",
+    "action_eligibility": true,
+    "abstention_required": false,
+    "authority": "Group 2 Temporal Applicability",
+    "evidence": [
+      "Observation timestamp (2026-08-13T09:14:22Z) verified from canonical payload."
+    ]
+  },
+  "result": "REJECTED",
+  "reason": "Missing lineage fields"
+}

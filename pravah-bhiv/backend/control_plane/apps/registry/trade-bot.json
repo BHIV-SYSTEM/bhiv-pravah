@@ -1,0 +1,24 @@
+{
+  "name": "trade-bot",
+  "type": "backend",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/Trade_Bot_",
+  "source_type": "python",
+  "build_command": "pip install -r requirements-unified.txt",
+  "start_command": "python api_server.py",
+  "health_endpoint": "/api/status",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8002,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

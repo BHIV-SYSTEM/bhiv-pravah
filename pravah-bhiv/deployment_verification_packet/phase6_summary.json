@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-06-11T04:55:28.633962+00:00",
+  "proofs": {
+    "restart_proof": {
+      "timestamp": "2026-06-11T04:54:41.340583+00:00",
+      "event": "restart_survival_proof",
+      "execution_id": "exec-restart-proof",
+      "before_restart": {
+        "lineage_hash": "h1:h2:h3:h4",
+        "state_hash": "07f4c32142d8adab5c0cddbcaa12ba5f859de8af4fb94ce299ed2e5f96e95550",
+        "index_exists": true
+      },
+      "after_restart": {
+        "lineage_hash": "h1:h2:h3:h4",
+        "state_hash": "07f4c32142d8adab5c0cddbcaa12ba5f859de8af4fb94ce299ed2e5f96e95550",
+        "index_recreated": true,
+        "index_loaded": true
+      },
+      "verdict": "PASS"
+    },
+    "recovery_proof": {
+      "timestamp": "2026-06-11T04:54:41.366203+00:00",
+      "event": "recovery_correctness_proof",
+      "execution_id": "exec-recovery-proof",
+      "clean_recovery": {
+        "expected_hash": "a824a3d76241a6a81962e1488a2c529149d79662b2e4ed1a60af9226ad2eaa84",
+        "recovered_hash": "a824a3d76241a6a81962e1488a2c529149d79662b2e4ed1a60af9226ad2eaa84",
+        "status": "READY",
+        "ready": true
+      },
+      "corrupted_recovery": {
+        "expected_hash": "a824a3d76241a6a81962e1488a2c529149d79662b2e4ed1a60af9226ad2eaa84",
+        "recovered_hash": "eb0c844f00706d525971c8150e9bf169e0b355d19f106ebe0f00906ebb687a5d",
+        "status": "RECOVERY_FAILED",
+        "ready": false,
+        "failures": [
+          "state_hash_mismatch"
+        ]
+      },
+      "verdict": "PASS"
+    },
+    "dependency_loss_proof": {
+      "timestamp": "2026-06-11T04:55:28.564960+00:00",
+      "event": "dependency_loss_simulation",
+      "redis_connection_loss": {
+        "simulated_redis_port": 9999,
+        "connected_status": false,
+        "fallback_bus_engaged": true,
+        "fallback_queue_behavior": "in-memory mock mode"
+      },
+      "rl_decision_brain_loss": {
+        "simulated_url": "http://localhost:9999/decide",
+        "returned_decision": {
+          "action": "noop",
+          "confidence": 0.0,
+          "reason": "Fallback: Request timed out",
+          "source": "remote_client_fallback"
+        },
+        "fallback_action_triggered": "noop",
+        "source_origin": "remote_client_fallback"
+      },
+      "verdict": "PASS"
+    },
+    "replay_proof": {
+      "timestamp": "2026-06-11T04:55:28.618755+00:00",
+      "event": "post_restart_replay_proof",
+      "execution_id": "exec-replay-test",
+      "replay_before_restart": {
+        "final_state": "COMPLETED",
+        "output_decision_hash": "ca936ebf89a4b50ae346e2dad99ac45c90bd13d282136eb3cbe3ed7022e9ce85"
+      },
+      "replay_after_restart": {
+        "final_state": "COMPLETED",
+        "output_decision_hash": "ca936ebf89a4b50ae346e2dad99ac45c90bd13d282136eb3cbe3ed7022e9ce85"
+      },
+      "verdict": "PASS"
+    },
+    "schema_discipline_proof": {
+      "timestamp": "2026-06-11T04:55:28.621259+00:00",
+      "event": "schema_discipline_proof",
+      "version_v1_replay": {
+        "policy_version": "v1",
+        "runtime_policy_version": "v1",
+        "admission_allowed": true,
+        "status": "POLICY_APPROVED"
+      },
+      "version_v2_replay": {
+        "policy_version": "v2",
+        "runtime_policy_version": "v1",
+        "admission_allowed": false,
+        "status": "POLICY_VERSION_MISMATCH",
+        "rejection_code": "POLICY_VERSION_MISMATCH"
+      },
+      "invalid_schema_replay": {
+        "rejection_triggered": true,
+        "error_detail": "2 validation errors for DecisionContract\naction\n  Input should be a valid string [type=string_type, input_value=12345, i"
+      },
+      "verdict": "PASS"
+    },
+    "observability_proof": {
+      "timestamp": "2026-06-11T04:55:28.632276+00:00",
+      "event": "observability_consistency_proof",
+      "replay_index_observability_state": {
+        "execution_id": "exec-obs-1",
+        "event_count": 3,
+        "last_event_hash": "h3"
+      },
+      "append_only_log_observability_state": {
+        "execution_id": "exec-obs-1",
+        "event_count": 3,
+        "last_event_hash": "h3"
+      },
+      "states_agreement": true,
+      "verdict": "PASS"
+    }
+  }
+}

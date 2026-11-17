@@ -1,0 +1,24 @@
+{
+  "name": "uniguru_ai",
+  "type": "backend",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/uniguru_ai",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python main.py",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8003,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

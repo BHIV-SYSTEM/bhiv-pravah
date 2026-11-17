@@ -1,0 +1,112 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: pravah-redis
+    ports:
+      - "6380:6379"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  control-plane:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: pravah-control-plane
+
+    command: >
+      gunicorn wsgi:app
+      --workers 1
+      --worker-class sync
+      --bind 0.0.0.0:7000
+      --timeout 120
+      --access-logfile -
+      --error-logfile -
+
+    environment:
+      ENVIRONMENT: dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SSPL_SECRET_KEY: test
+      LINEAGE_SIGNING_KEY: test
+
+    env_file:
+      - ./environments/dev.env
+
+    ports:
+      - "7000:7000"
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  decision-brain:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: pravah-decision-brain
+
+    command: >
+      uvicorn control_plane.backend.app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 1
+
+    environment:
+      ENVIRONMENT: dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SSPL_SECRET_KEY: test
+      LINEAGE_SIGNING_KEY: test
+
+    env_file:
+      - ./environments/dev.env
+
+    ports:
+      - "8000:8000"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  observer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: pravah-observer
+
+    command: >
+      uvicorn observer_server:app
+      --host 0.0.0.0
+      --port 8600
+
+    environment:
+      PRAVAH_CONTROL_PLANE: http://control-plane:7000
+      PRAVAH_MAIN_API: http://decision-brain:8000
+
+    ports:
+      - "8600:8600"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8600/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    depends_on:
+      - control-plane
+      - decision-brain

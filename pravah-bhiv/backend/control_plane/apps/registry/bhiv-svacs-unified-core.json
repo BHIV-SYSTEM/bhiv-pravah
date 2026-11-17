@@ -1,0 +1,8 @@
+{
+  "app_id": "bhiv-svacs-unified-core",
+  "name": "SVACS Unified Core",
+  "port": 5000,
+  "health_endpoint": "/health",
+  "telemetry_target": "/api/runtime",
+  "hmac_enabled": true
+}

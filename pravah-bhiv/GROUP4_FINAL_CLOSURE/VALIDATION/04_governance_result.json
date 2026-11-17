@@ -1,0 +1,7 @@
+{
+  "closure_run_id": "group4-phase16-closure-run",
+  "source_observation_id": "TC-Z03-F02-LIDAR-OBS001",
+  "governance_status": "POLICY_ADMITTED",
+  "should_block": false,
+  "policy_id": "action_governance_v1"
+}

@@ -1,0 +1,9 @@
+Docker containers (selected) reported as started during demo run:
+
+Connected to Redis at localhost:6379
+Redis event bus initialized
+Agent monitoring started | initial_status=UP
+Perception adapters initialized: 4 adapters
+All components initialized
+
+Note: Docker orchestration used `docker-compose up -d` to start Redis, deploy workers, queue monitor, health monitor, and agents.

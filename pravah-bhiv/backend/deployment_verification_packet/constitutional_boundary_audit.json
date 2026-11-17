@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "event": "constitutional_boundary_audit",
+  "timestamp": "2026-07-25T05:06:17.587630+00:00",
+  "overall_enforced": true,
+  "boundaries": [
+    {
+      "boundary": "observability_not_authority",
+      "enforced": true,
+      "checks": {
+        "evidence_bundles_authority": true,
+        "evidence_bundles_count": 5,
+        "registry_provenance_passive": true,
+        "registry_no_active_governance": true,
+        "registry_no_execution_authority": true,
+        "doctrine_runtime_evaluator_only": true,
+        "doctrine_no_define_semantics": true
+      }
+    },
+    {
+      "boundary": "replay_not_truth",
+      "enforced": true,
+      "checks": {
+        "replay_returns_valid_not_truth": true,
+        "no_truth_claim_field": true,
+        "no_ground_truth_assertion": true,
+        "replay_validates_chain_only": true,
+        "replay_index_no_truth": true,
+        "replay_index_no_truth_assertion": true
+      }
+    },
+    {
+      "boundary": "telemetry_not_governance",
+      "enforced": true,
+      "checks": {
+        "observer_uses_get": true,
+        "observer_no_post_to_services": true,
+        "observer_read_only_probes": true,
+        "telemetry_collects_only": true,
+        "telemetry_no_governance_action": true,
+        "telemetry_no_enforce": true
+      }
+    },
+    {
+      "boundary": "visibility_not_execution_rights",
+      "enforced": true,
+      "checks": {
+        "all_provenance_observability_only": true,
+        "provenance_role_count": 5,
+        "self_restraint_blocks_insufficient": true,
+        "self_restraint_blocks_low_confidence": true,
+        "governance_cooldown_enforcement": true,
+        "governance_repetition_suppression": true,
+        "governance_eligibility_check": true
+      }
+    },
+    {
+      "boundary": "unknown_ownership_escalation",
+      "enforced": true,
+      "checks": {
+        "blocks_on_uncertainty": true,
+        "blocks_on_safety_threshold": true,
+        "blocks_on_conflicting_signals": true,
+        "signal_conflict_observation": true,
+        "escalation_tms_strategic": true,
+        "escalation_gc_governance": true,
+        "escalation_mdu_provenance": true
+      }
+    }
+  ],
+  "constitutional_requirements": {
+    "observability_not_authority": "Pravah observes but never assumes ownership or governance authority",
+    "replay_not_truth": "Replay validates chain integrity, not ground truth of events",
+    "telemetry_not_governance": "Telemetry collection is read-only; governance decisions are separate",
+    "visibility_not_execution_rights": "Visibility into a system does not grant execution rights over it",
+    "unknown_ownership_escalation": "Unknown ownership escalated to TMS (strategic), GC (governance), MDU (data/provenance)"
+  }
+}

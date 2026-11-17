@@ -1,0 +1,7 @@
+[X-CALLER=sarathi] accepted
+Context: router proof log showing header injection and guard validation during demo run.
+
+Example surrounding lines (from runtime):
+"[ACT_PHASE] ACT PHASE TRIGGERED"
+"[X-CALLER=sarathi] accepted"
+"[EXECUTER] EXECUTER CALLED"

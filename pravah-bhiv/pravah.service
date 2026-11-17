@@ -1,0 +1,41 @@
+[Unit]
+Description=Pravah Autonomous DevOps Control Plane
+Documentation=https://github.com/IamShivamPal/pravah-int
+After=network.target docker.service
+Requires=docker.service
+StartLimitIntervalSec=120
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/pravah/pravah-bhiv
+
+# --- Environment ---
+EnvironmentFile=/opt/pravah/pravah-bhiv/backend/environments/prod.env
+
+# --- Pre-start: validate secrets are injected ---
+ExecStartPre=/bin/bash -c 'grep -q "##SECRET\|##YOTTA_URL" /opt/pravah/pravah-bhiv/backend/environments/prod.env && echo "ERROR: Unresolved placeholders in prod.env" && exit 1 || exit 0'
+
+# --- Build & Start ---
+ExecStart=/opt/pravah/pravah-bhiv/backend/scripts/start_prod_services.sh start
+
+# --- Stop ---
+ExecStop=/opt/pravah/pravah-bhiv/backend/scripts/start_prod_services.sh stop
+
+# --- Reload (graceful restart) ---
+ExecReload=/opt/pravah/pravah-bhiv/backend/scripts/start_prod_services.sh restart
+
+# --- Restart policy ---
+Restart=on-failure
+RestartSec=15s
+TimeoutStartSec=300
+TimeoutStopSec=60
+
+# --- Logging ---
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pravah
+
+[Install]
+WantedBy=multi-user.target

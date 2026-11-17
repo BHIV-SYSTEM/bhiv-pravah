@@ -1,0 +1,18 @@
+{
+  "apps": {
+    "sample-backend": {
+      "status": "running",
+      "environment": "stage",
+      "build_id": "sample-backend-stage-1764650808",
+      "workers": 1,
+      "deployed_at": 1764650811.6332552
+    },
+    "sample-frontend": {
+      "status": "running",
+      "environment": "stage",
+      "build_id": "sample-frontend-stage-1764650811",
+      "workers": 1,
+      "deployed_at": 1764650812.247818
+    }
+  }
+}

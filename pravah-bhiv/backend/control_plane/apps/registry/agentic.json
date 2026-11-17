@@ -1,0 +1,23 @@
+{
+  "name": "agentic",
+  "type": "fullstack",
+  "repo_path_or_url": "https://github.com/I-am-ShivamPal/Multi-intelligent-agent",
+  "build_command": "npm install && pip install -r requirements.txt",
+  "start_command": "npm run start:prod",
+  "health_endpoint": "/api/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8080,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

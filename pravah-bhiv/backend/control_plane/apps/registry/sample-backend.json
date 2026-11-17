@@ -1,0 +1,25 @@
+{
+  "name": "sample-backend",
+  "type": "backend",
+  "repo_path_or_url": "./apps/sample_backend",
+  "build_command": "echo 'Build: Installing dependencies' && type requirements.txt",
+  "start_command": "python app.py",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 5000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 5,
+    "target_cpu_percent": 70
+  },
+  "registry_version": "1.0",
+  "onboarded_at": "2025-11-29T13:37:09.657709"
+}

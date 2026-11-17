@@ -1,0 +1,85 @@
+{"timestamp": "2026-09-01T10:27:31.423076", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-01T10:27:31.423602", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T10:27:31.424032", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T10:27:31.564488", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-01T10:27:31.565092", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-01T10:27:54.626464", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-01T10:27:54.626794", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T10:27:54.627141", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T10:27:54.762833", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-01T10:27:54.763330", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-01T10:34:40.890228", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-01T10:34:40.890579", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T10:34:40.890872", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T10:34:41.087663", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-01T10:34:41.088178", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-01T16:10:24.873355", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-01T16:10:24.873690", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T16:10:24.874018", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T16:10:25.019354", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-01T16:10:25.019798", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-01T16:37:37.151474", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-01T16:37:37.151854", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T16:37:37.152118", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-01T16:37:37.293006", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-01T16:37:37.293433", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T11:41:13.188950", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T11:41:13.189548", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T11:41:13.189810", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T11:41:13.363909", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T11:41:13.364390", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T12:49:55.582588", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T12:49:55.582940", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T12:49:55.583206", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T12:49:55.756304", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T12:49:55.756727", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T14:58:40.451058", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T14:58:40.451393", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T14:58:40.451645", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T14:58:40.588119", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T14:58:40.588593", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T15:02:07.984090", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T15:02:07.984451", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:02:07.984713", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:02:08.120668", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T15:02:08.121120", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T15:03:18.812760", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T15:03:18.813114", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:03:18.813376", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:03:18.947449", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T15:03:18.947913", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T15:10:51.606300", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T15:10:51.606666", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:10:51.606922", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:10:51.743062", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T15:10:51.743538", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-02T15:43:21.805868", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-02T15:43:21.806436", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:43:21.806787", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-02T15:43:22.002994", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-02T15:43:22.003803", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-03T11:28:40.268947", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-03T11:28:40.269544", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:28:40.269886", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:28:40.408343", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-03T11:28:40.408861", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-03T11:28:56.685449", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-03T11:28:56.685844", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:28:56.686118", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:28:56.823450", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-03T11:28:56.824047", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-03T11:29:08.686589", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-03T11:29:08.687082", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:29:08.687362", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:29:08.825465", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-03T11:29:08.826113", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-03T11:35:55.973715", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-03T11:35:55.974169", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:35:55.974479", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:35:56.114405", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-03T11:35:56.114944", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-03T11:35:58.509584", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-03T11:35:58.509960", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:35:58.510282", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-03T11:35:58.649110", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-03T11:35:58.649646", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}

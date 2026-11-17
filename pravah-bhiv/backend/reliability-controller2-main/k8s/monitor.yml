@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitor
+  template:
+    metadata:
+      labels:
+        app: monitor
+    spec:
+      containers:
+      - name: monitor
+        image: rayyandevopss/monitor-service:latest
+        ports:
+        - containerPort: 5004
+        imagePullPolicy: Always
+        env:
+        - name: ENV
+          value: "PROD"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitor-service
+spec:
+  selector:
+    app: monitor
+  ports:
+    - protocol: TCP
+      port: 5004
+      targetPort: 5004
+  type: NodePort

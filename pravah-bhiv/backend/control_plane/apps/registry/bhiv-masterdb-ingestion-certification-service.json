@@ -1,0 +1,8 @@
+{
+  "app_id": "bhiv-masterdb-ingestion-certification-service",
+  "name": "MasterDB Ingestion",
+  "port": 8001,
+  "health_endpoint": "/health",
+  "telemetry_target": "/api/runtime",
+  "hmac_enabled": true
+}

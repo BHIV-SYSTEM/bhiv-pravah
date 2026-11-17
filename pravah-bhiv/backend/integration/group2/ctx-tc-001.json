@@ -1,0 +1,54 @@
+{
+  "lineage": {
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001"
+  },
+  "upstream_context_history": [
+    {
+      "context_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "status": "SUPERSEDED"
+    }
+  ],
+  "context_id": "ctx-tc-001",
+  "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+  "parameter_name": "expected_canopy_height",
+  "parameter_value": {
+    "value": 4.8,
+    "range": [3.5, 6.5],
+    "unit": "m"
+  },
+  "valid_from": "2020-01-01T00:00:00Z",
+  "valid_to": "2028-12-31T23:59:59Z",
+  "location_polygon": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [72.94, 19.12],
+        [72.95, 19.12],
+        [72.95, 19.13],
+        [72.94, 19.13],
+        [72.94, 19.12]
+      ]
+    ]
+  },
+  "source_citation": "Standing carbon stock of Thane Creek mangrove ecosystem, ScienceDirect, 2023",
+  "source_url": "https://doi.org/10.1016/j.rsma.2023.103207",
+  "source_doi": "10.1016/j.rsma.2023.103207",
+  "spatial_reference_doi": "10.5281/zenodo.6894273",
+  "confidence_score": 0.85,
+  "validation_status": "VERIFIED",
+  "validation_evidence": "Authoritative Thane Creek baseline",
+  "superseded_evidence": {
+    "context_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "source_doi": "10.3334/ORNLDAAC/1665",
+    "parameter_value": {
+      "value": 4.5,
+      "range": [3.0, 6.0],
+      "unit": "m"
+    },
+    "valid_from": "2020-01-01T00:00:00Z",
+    "valid_to": "2023-12-31T23:59:59Z",
+    "note": "Superseded by authoritative Thane Creek baseline"
+  }
+}

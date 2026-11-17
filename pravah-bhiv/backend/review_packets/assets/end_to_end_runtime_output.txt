@@ -1,0 +1,21 @@
+[DEMO] Pravah stream cleared
+2026-05-06 13:38:38,529 - [INFO] Initializing system components | Context: {"timestamp": "2026-05-06T08:08:38.529443", "agent_id": "agent-527c6b31", "agent_state": "idle"}
+Connected to Redis at localhost:6379
+2026-05-06 13:38:38,552 - [INFO] Redis event bus initialized | Context: {"timestamp": "2026-05-06T08:08:38.552772", "agent_id": "agent-527c6b31", "agent_state": "idle"}
+2026-05-06 13:38:38 | agent.UptimeMonitor | INFO | Agent monitoring started | initial_status=UP
+2026-05-06 13:38:38,555 - [INFO] Perception adapters initialized: 4 adapters | Context: {"timestamp": "2026-05-06T08:08:38.555841", "agent_id": "agent-527c6b31", "agent_state": "idle"}
+2026-05-06 13:38:38,555 - [INFO] All components initialized | Context: {"timestamp": "2026-05-06T08:08:38.555841", "agent_id": "agent-527c6b31", "agent_state": "idle"}
+2026-05-06 13:38:38,555 - [INFO] Agent initialized: id=agent-527c6b31, env=dev, version=1.0.0 | Context: {"timestamp": "2026-05-06T08:08:38.555841", "agent_id": "agent-527c6b31", "agent_state": "idle"}
+[DECISION] DECISION REACHED: {'rl_action': 0, 'action_name': 'noop', 'source': 'fallback_safe', 'confidence': 0.0, 'reason': 'external_api_failed'}
+[ACT_PHASE] ACT PHASE TRIGGERED
+[X-CALLER=sarathi] accepted
+[EXECUTER] EXECUTER CALLED
+2026-05-06 13:38:42,587 - [INFO] Action: execute_safe_action - {"action": "noop", "result": {"status": "success", "execution_id": "0cd3ace0-364b-42ad-b8b1-fb24b814d5f2", "source": "executer", "action_executed": "noop", "message": "Action noop executed via sarathi→executer→pravah"}}
+[PRAVAH WATCH] [execution] trace_id=demo-trace-001 execution_id=0cd3ace0-364b-42ad-b8b1-fb24b814d5f2 source=executer
+
+[DEMO] Final passive snapshot:
+[execution] trace_id=demo-trace-001 execution_id=0cd3ace0-364b-42ad-b8b1-fb24b814d5f2 source=executer
+
+[DEMO] Pravah stream summary:
+[DEMO] Total events: 1
+[DEMO]   execution: 1

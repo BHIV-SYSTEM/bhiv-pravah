@@ -1,0 +1,22 @@
+{
+  "apps": {
+    "sample-frontend": {
+      "status": "stopped",
+      "environment": "dev",
+      "build_id": "sample-frontend-dev-1764403432",
+      "workers": 3,
+      "deployed_at": 1764404330.6699226,
+      "scaled_at": 1764404332.7212667,
+      "scale_method": "state_only",
+      "stopped_at": 1764404334.7794373,
+      "stop_method": "state_only"
+    },
+    "apps02": {
+      "status": "running",
+      "environment": "dev",
+      "build_id": "apps02_build",
+      "workers": 1,
+      "deployed_at": 1773305463.6772366
+    }
+  }
+}

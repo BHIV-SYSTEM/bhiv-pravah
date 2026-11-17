@@ -1,0 +1,14 @@
+{
+  "snapshots": {
+    "phase7-snapshot-001": {
+      "snapshot_id": "phase7-snapshot-001",
+      "execution_id": "a0272114-6372-4972-9997-eab6db0a85fd",
+      "at_sequence": 4,
+      "state_hash": "1c951a1182ae58831ed5c29f5cd55d124828a38b3edd799f831920afcb977438",
+      "created_at": 1780124068
+    }
+  },
+  "execution_latest": {
+    "a0272114-6372-4972-9997-eab6db0a85fd": "phase7-snapshot-001"
+  }
+}

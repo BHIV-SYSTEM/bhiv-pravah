@@ -1,0 +1,9 @@
+{
+  "name": "stable-app",
+  "type": "python",
+  "start_command": "python main.py",
+  "environments": [
+    "dev"
+  ],
+  "port": 8082
+}

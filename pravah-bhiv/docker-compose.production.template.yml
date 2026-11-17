@@ -1,0 +1,277 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: pravah_redis
+    ports:
+      - "127.0.0.1:6380:6380"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: >
+      sh -c "exec redis-server
+      --port 6380
+      $${REDIS_PASSWORD:+--requirepass \"$$REDIS_PASSWORD\"}
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --loglevel notice"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -p 6380 $${REDIS_PASSWORD:+-a \"$$REDIS_PASSWORD\"} ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pravah-prod-network
+
+  control-plane:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_control_plane
+    ports:
+      - "7000:7000"
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=prod
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PRAVAH_MAIN_API=http://decision-brain:8000
+      - DECISION_BRAIN_PORT=8000
+      - PRAVAH_OBSERVER_HOST=observer
+      - PRAVAH_OBSERVER_PORT=8600
+      - PRAVAH_OBSERVER_URL=http://observer:8600/api/ingest
+      - SSPL_SECRET_KEY=${SSPL_SECRET_KEY}
+      - LINEAGE_SIGNING_KEY=${LINEAGE_SIGNING_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: >
+      gunicorn wsgi:app
+      --workers 4
+      --worker-class sync
+      --bind 0.0.0.0:7000
+      --timeout 120
+      --keep-alive 5
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      - redis
+    networks:
+      - pravah-prod-network
+
+  decision-brain:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_decision_brain
+    ports:
+      - "8010:8000"
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=prod
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PRAVAH_MAIN_API=http://decision-brain:8000
+      - DECISION_BRAIN_PORT=8000
+      - SSPL_SECRET_KEY=${SSPL_SECRET_KEY}
+      - LINEAGE_SIGNING_KEY=${LINEAGE_SIGNING_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: >
+      uvicorn control_plane.backend.app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      - redis
+    networks:
+      - pravah-prod-network
+
+  observer:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_observer
+    ports:
+      - "8600:8600"
+    env_file:
+      - .env
+    environment:
+      - PRAVAH_CONTROL_PLANE=http://control-plane:7000
+      - PRAVAH_MAIN_API=http://decision-brain:8000
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: >
+      uvicorn observer_server:app
+      --host 0.0.0.0
+      --port 8600
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8600/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    depends_on:
+      - control-plane
+      - decision-brain
+    networks:
+      - pravah-prod-network
+
+  deploy-worker-1:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_deploy_worker_1
+    env_file:
+      - .env
+    environment:
+      - WORKER_ID=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: python -m control_plane.agents.multi_deploy_agent --env prod --workers 1
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - pravah-prod-network
+
+  deploy-worker-2:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_deploy_worker_2
+    env_file:
+      - .env
+    environment:
+      - WORKER_ID=2
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: python -m control_plane.agents.multi_deploy_agent --env prod --workers 1
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - pravah-prod-network
+
+  deploy-worker-3:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_deploy_worker_3
+    env_file:
+      - .env
+    environment:
+      - WORKER_ID=3
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: python -m control_plane.agents.multi_deploy_agent --env prod --workers 1
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - pravah-prod-network
+
+  queue-monitor:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_queue_monitor
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: python -m monitoring.queue_monitor --continuous --cycles 0
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - pravah-prod-network
+
+  health-monitor:
+    image: bhiv/pravah-backend:IMG_TAG
+    container_name: pravah_health_monitor
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: python -m monitoring.infra_health_monitor --env prod --continuous
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - control-plane
+    networks:
+      - pravah-prod-network
+
+  frontend:
+    image: bhiv/pravah-frontend:IMG_TAG
+    container_name: pravah_frontend
+    ports:
+      - "4500:4500"
+    env_file:
+      - .env.frontend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4500', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    depends_on:
+      - control-plane
+      - decision-brain
+      - observer
+    networks:
+      - pravah-prod-network
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: pravah_prometheus
+    ports:
+      - "127.0.0.1:9093:9090"
+    volumes:
+      - ./backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+    depends_on:
+      - control-plane
+      - observer
+    networks:
+      - pravah-prod-network
+
+networks:
+  pravah-prod-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  prometheus_data:

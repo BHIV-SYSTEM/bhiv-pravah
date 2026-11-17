@@ -1,0 +1,20 @@
+{
+  "name": "bhiv-sarathi",
+  "type": "service",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/bhiv-sarathi",
+  "source_type": "go",
+  "build_command": "go build",
+  "start_command": "./sarathi",
+  "health_endpoint": "/health",
+  "environments": ["dev", "stage", "prod"],
+  "port": 9002,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

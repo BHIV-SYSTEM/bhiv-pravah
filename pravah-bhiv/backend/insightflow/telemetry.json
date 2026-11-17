@@ -1,0 +1,872 @@
+[
+  {
+    "timestamp": "2025-10-29T13:32:48.408358",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:33:20.082223",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:35:05.084023",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:46:59.609832",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:47:33.832042",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:49:37.827138",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:49:57.871577",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T13:50:45.395179",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T14:01:00.265608",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T14:09:33.853428",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T14:11:15.290496",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T14:11:50.541442",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T15:58:07.281223",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T16:41:02.805610",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-10-29T16:42:02.985606",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-01T17:02:50.708282",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T09:27:55.239372",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T09:31:08.027968",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T13:18:49.127246",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T13:23:32.837768",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T14:52:48.263612",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T15:19:56.696815",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T16:02:48.557436",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-04T16:47:29.806501",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-05T10:26:45.395223",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-05T10:27:37.289042",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-05T10:28:47.846872",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-05T10:52:11.814124",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-05T10:58:12.666481",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-12T12:34:16.989807",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T09:44:58.834400",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T09:46:05.650292",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T10:47:57.968389",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T10:48:50.341594",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T10:54:55.949638",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T10:57:57.747014",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T11:09:33.643024",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T11:25:03.303138",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T11:47:41.906200",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-21T11:56:17.374165",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T10:15:48.844128",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T10:52:37.090187",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:15:49.517733",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:21:02.780029",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:22:09.867425",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:25:22.229418",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:27:03.555621",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:32:41.013953",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T11:33:22.671279",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T12:28:04.335229",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T12:49:42.005999",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T12:50:19.367224",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T12:51:15.431141",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T13:03:20.925238",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T13:03:58.136872",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-27T14:54:06.345023",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T11:34:38.850374",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T11:35:20.516502",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T11:36:52.062645",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T11:49:52.678488",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T11:50:17.324481",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T13:30:55.508009",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T13:33:02.773849",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T13:34:06.624617",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-28T14:21:14.922831",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T12:08:56.043167",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T12:09:36.281923",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T12:39:04.331103",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T13:12:30.702971",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T13:12:41.481313",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T15:01:56.396129",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T15:03:09.240614",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-11-29T15:07:25.181825",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:14:45.308056",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:15:14.925440",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:28:41.699631",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:31:00.763401",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:31:07.241150",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:32:04.050780",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:32:14.232494",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:36:32.365097",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:36:57.056029",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:38:56.369724",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:39:02.649111",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:40:34.995117",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:42:27.596104",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:43:24.124795",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:43:29.589826",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:43:50.430119",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T12:44:47.743095",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T13:06:37.790144",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T14:14:04.322688",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T15:50:21.297535",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T15:51:44.748892",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:06:45.646349",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:07:30.752411",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:08:09.297596",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:16:18.433052",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:20:46.487544",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:35:39.282150",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:37:20.409604",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2025-12-08T16:37:47.362758",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:48:24.652078",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:48:49.740960",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:51:34.078498",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:52:04.499665",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:52:28.920382",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:53:48.395777",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:54:00.174389",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:57:43.710108",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-27T15:58:29.694293",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-31T15:18:30.595075",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-01-31T15:21:53.022259",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-07T14:59:25.594572",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-07T15:33:01.879828",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-07T15:33:18.972843",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-07T15:33:34.131262",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-10T14:20:27.625015",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-10T14:20:55.110317",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-10T14:21:10.379211",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-10T14:21:16.363441",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-10T14:21:45.013157",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-10T14:22:01.645984",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T12:04:59.661361",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T12:05:36.427000",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T12:05:57.245941",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T12:45:29.072048",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T14:37:07.987756",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T14:38:18.670633",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T14:44:11.363825",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T14:44:36.460405",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T14:45:22.799816",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-13T14:45:29.996211",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T11:46:12.130949",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T11:46:55.438164",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T11:47:06.952206",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T12:17:58.172006",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T12:22:05.127565",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T13:09:51.915426",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T17:11:33.863159",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T17:11:54.179219",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T17:22:17.155490",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T17:23:14.502076",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T17:23:43.236121",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T17:24:01.784685",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  }
+]

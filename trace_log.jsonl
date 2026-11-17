@@ -1,0 +1,30 @@
+{"timestamp": "2026-09-04T13:41:24.650813", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-04T13:41:24.651355", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T13:41:24.651698", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T13:41:24.697612", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "Error response from daemon: No such container: youthful_dubinsky\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-04T13:41:24.698327", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-04T13:51:17.904634", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-04T13:51:17.905005", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T13:51:17.905337", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T13:51:17.953891", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "Error response from daemon: No such container: youthful_dubinsky\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-04T13:51:17.954523", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-04T16:49:32.629748", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-04T16:49:32.630096", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T16:49:32.630454", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T16:49:32.679130", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "Error response from daemon: No such container: youthful_dubinsky\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-04T16:49:32.679737", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-04T16:49:35.454835", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-04T16:49:35.455201", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T16:49:35.455480", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-04T16:49:35.500941", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "Error response from daemon: No such container: youthful_dubinsky\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-04T16:49:35.501519", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-09-07T15:37:18.931494", "stage": "detection", "data": {"issue": "manual_trigger"}}
+{"timestamp": "2026-09-07T15:37:18.931863", "stage": "payload_emitted", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-07T15:37:18.932156", "stage": "action_received", "data": {"service_id": "youthful_dubinsky", "action": "start"}}
+{"timestamp": "2026-09-07T15:37:18.980658", "stage": "execution_result", "data": {"service_id": "youthful_dubinsky", "action": "start", "status": "failed", "error": "Error response from daemon: No such container: youthful_dubinsky\nfailed to start containers: youthful_dubinsky"}}
+{"timestamp": "2026-09-07T15:37:18.981245", "stage": "verification", "data": {"verified": false, "reason": "execution_failed"}}
+{"timestamp": "2026-11-17T16:25:13.731067", "stage": "detection", "data": {"issue": "high_cpu", "service_id": "test-worker-alpha", "metrics": {"cpu": 0.42, "memory": 0.65, "latency": 45, "error_rate": 0.01}}}
+{"timestamp": "2026-11-17T16:25:13.733721", "stage": "payload_emitted", "data": {"service_id": "test-worker-alpha", "action": "noop"}}
+{"timestamp": "2026-11-17T16:25:13.734269", "stage": "action_received", "data": {"service_id": "test-worker-alpha", "action": "noop"}}
+{"timestamp": "2026-11-17T16:25:13.740268", "stage": "execution_result", "data": {"service_id": "test-worker-alpha", "action": "noop", "status": "blocked", "error": "Action 'noop' is not authorized for capability 'governed-execution'.", "execution_id": null}}
+{"timestamp": "2026-11-17T16:25:13.740834", "stage": "verification", "data": {"verified": false, "reason": "Action 'noop' is not authorized for capability 'governed-execution'."}}

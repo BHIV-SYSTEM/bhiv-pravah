@@ -1,0 +1,52 @@
+# Git and IDE
+.git/
+.gitignore
+.vscode/
+.idea/
+.DS_Store
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Analysis
+.tox/
+.nox/
+.coverage
+.coverage.*
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Local Environment & Secrets
+.env*
+environments/*.env
+!environments/*.env.example
+
+# Runtime logs & data
+logs/
+data/
+*.log
+*.csv
+
+# Scratch and review packets
+scratch/
+review_packets/
+deployment_verification_packet/

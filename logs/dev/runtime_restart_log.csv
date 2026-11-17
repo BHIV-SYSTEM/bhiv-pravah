@@ -1,0 +1,2 @@
+timestamp,env,event_type,status,response_time,dataset
+2026-09-07T15:37:19.176314,dev,restart,success,0,uptime_monitor

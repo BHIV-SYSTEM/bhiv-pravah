@@ -1,0 +1,5 @@
+{
+    "repo_url": "file://../../etc/passwd",
+    "app_name": "malicious-app",
+    "runtime_type": "backend"
+}

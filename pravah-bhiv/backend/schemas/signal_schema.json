@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/signal_schema.json",
+  "title": "Canonical Signal Schema",
+  "type": "object",
+  "required": [
+    "trace_id",
+    "execution_id",
+    "timestamp",
+    "source",
+    "signal_type",
+    "payload"
+  ],
+  "properties": {
+    "trace_id": {
+      "type": "string"
+    },
+    "execution_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "signal_type": {
+      "type": "string",
+      "enum": ["execution", "verification"]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "service_id": {
+      "type": "string",
+      "description": "Legacy field retained during migration."
+    },
+    "action": {
+      "type": "string",
+      "description": "Legacy field retained during migration."
+    },
+    "status": {
+      "type": "string",
+      "description": "Legacy field retained during migration."
+    },
+    "type": {
+      "type": "string",
+      "description": "Legacy field retained during migration."
+    }
+  },
+  "additionalProperties": true
+}

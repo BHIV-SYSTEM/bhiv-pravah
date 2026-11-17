@@ -1,0 +1,27 @@
+{
+  "registry_version": "1.0",
+  "registry_kind": "capability",
+  "capability_id": "svacs-runtime",
+  "capability_name": "svacs_runtime_dependency",
+  "capability_type": "runtime_dependency",
+  "owner": {
+    "group": "unverified",
+    "module_id": "svacs-unverified"
+  },
+  "maturity": "UNKNOWN",
+  "status": "BLOCKED",
+  "runtime": {
+    "service_hosted": true,
+    "endpoint": null
+  },
+  "produces": [
+    "runtime_validation"
+  ],
+  "metadata": {
+    "owner_status": "UNVERIFIED",
+    "reachability": "UNREACHABLE",
+    "verification": "http=000",
+    "source_of_truth": "external_dependency_not_present_in_repository",
+    "note": "Referenced by deployment and verification configuration, but no hosted implementation or reachable endpoint was verified."
+  }
+}

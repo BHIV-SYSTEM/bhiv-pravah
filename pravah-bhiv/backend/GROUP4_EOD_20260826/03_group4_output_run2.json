@@ -1,0 +1,12 @@
+{
+  "event_type": "GOVERNED_ABSTENTION",
+  "abstention_record_id": "abstention-f71045f1c36d34de27f585e9",
+  "event_id": "1207e083-affe-4387-a8b1-71500df2d3eb",
+  "execution_id": "exec-abstention-e3f56117943b4df7",
+  "observation_id": "TC-Z03-EXT-OPENMETEO-OBS001",
+  "context_id": null,
+  "ruling": "ABSTAIN",
+  "decision_action": "noop",
+  "governance_allowed": true,
+  "recorded_at": "2026-08-26T10:21:05.062925+00:00"
+}

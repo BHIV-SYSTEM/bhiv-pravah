@@ -1,0 +1,83 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: 'production'
+    platform: 'yotta'
+    project: 'pravah'
+
+# ============================================================
+# Alerting (stub — configure Alertmanager endpoint below)
+# ============================================================
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # Uncomment and set Alertmanager host when ready:
+          # - targets: ['alertmanager:9093']
+
+# ============================================================
+# Scrape Configurations
+# Service names match Docker Compose service DNS names.
+# In production (Docker Compose + systemd on Yotta VM),
+# targets resolve via the 'pravah-production-network' bridge.
+# ============================================================
+scrape_configs:
+
+  # --- Pravah Control Plane (Flask/Gunicorn — port 7000) ---
+  - job_name: 'pravah-control-plane'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['control-plane:7000']
+        labels:
+          service: 'control-plane'
+          environment: 'production'
+          component: 'agent-api'
+
+  # --- Pravah Decision Brain (FastAPI/Uvicorn — port 8000) ---
+  - job_name: 'pravah-decision-brain'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['decision-brain:8000']
+        labels:
+          service: 'decision-brain'
+          environment: 'production'
+          component: 'policy-engine'
+
+  # --- Pravah Observer Server (FastAPI/Uvicorn — port 8600) ---
+  - job_name: 'pravah-observer'
+    metrics_path: '/api/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['observer:8600']
+        labels:
+          service: 'observer'
+          environment: 'production'
+          component: 'observability-dashboard'
+
+  # --- Redis (native Redis metrics via redis-cli INFO) ---
+  # Requires redis_exporter sidecar. Uncomment when deployed.
+  # - job_name: 'pravah-redis'
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 30s
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+  #       labels:
+  #         service: 'redis'
+  #         environment: 'production'
+  #         component: 'event-bus'
+
+  # --- Prometheus self-scrape ---
+  - job_name: 'prometheus'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          environment: 'production'
+          component: 'metrics-scraper'

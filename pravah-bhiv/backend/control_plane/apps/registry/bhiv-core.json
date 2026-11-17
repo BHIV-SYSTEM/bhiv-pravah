@@ -1,0 +1,20 @@
+{
+  "name": "bhiv-core",
+  "type": "service",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/bhiv-core-bucket-karma-prana-orchrstration-insightcore-insightflow/v1-BHIV_CORE-main",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python mcp_bridge.py",
+  "health_endpoint": "/health",
+  "environments": ["dev", "stage", "prod"],
+  "port": 8002,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

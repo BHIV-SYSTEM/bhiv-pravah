@@ -1,0 +1,23 @@
+{
+  "name": "multi-agent",
+  "type": "python",
+  "repo_path_or_url": "https://github.com/I-am-ShivamPal/Multi-Intelligent-agent-system",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python main.py --env dev",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8501,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

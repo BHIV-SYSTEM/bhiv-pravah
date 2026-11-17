@@ -1,0 +1,43 @@
+{
+  "apps": [
+    {
+      "name": "sample-backend",
+      "type": "backend",
+      "repo_path_or_url": "./apps/sample_backend",
+      "build_command": "pip install -r requirements.txt",
+      "start_command": "python app.py",
+      "health_endpoint": "/health",
+      "environments": ["dev", "stage", "prod"],
+      "port": 5000,
+      "resources": {
+        "cpu": "0.5",
+        "memory": "512Mi"
+      },
+      "scaling": {
+        "min_replicas": 1,
+        "max_replicas": 5,
+        "target_cpu_percent": 70
+      },
+      "dependencies": ["requirements.txt"]
+    },
+    {
+      "name": "sample-frontend",
+      "type": "frontend",
+      "repo_path_or_url": "./apps/sample_frontend",
+      "build_command": "echo 'No build required for static HTML'",
+      "start_command": "python -m http.server 8080",
+      "health_endpoint": "/index.html",
+      "environments": ["dev", "stage", "prod"],
+      "port": 8080,
+      "resources": {
+        "cpu": "0.1",
+        "memory": "128Mi"
+      },
+      "scaling": {
+        "min_replicas": 1,
+        "max_replicas": 3,
+        "target_cpu_percent": 80
+      }
+    }
+  ]
+}

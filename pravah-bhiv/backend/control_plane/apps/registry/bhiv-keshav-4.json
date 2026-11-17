@@ -1,0 +1,20 @@
+{
+  "name": "bhiv-keshav-4",
+  "type": "service",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/bhiv-KESHAV-4",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python api.py",
+  "health_endpoint": "/health",
+  "environments": ["dev", "stage", "prod"],
+  "port": 5000,
+  "resources": {
+    "cpu": "0.1",
+    "memory": "128Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 2,
+    "target_cpu_percent": 85
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "contract_version": "group2.temporal-applicability.v1",
+  "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+  "context_id": "ctx-tc-001",
+  "ruling": "ALLOW",
+  "applicable_window": {
+    "start": "2020-01-01T00:00:00Z",
+    "end": "2028-12-31T23:59:59Z"
+  },
+  "source_reference_time": "2026-08-13T09:14:22Z",
+  "temporal_relationship": "WITHIN",
+  "evidence": [
+    "Observation timestamp (2026-08-13T09:14:22Z) verified from canonical payload."
+  ],
+  "confidence": 0.85,
+  "reason": "Verified observation timestamp falls within the authoritative 2020–2028 context validity window.",
+  "authority": "Group 2 Temporal Applicability",
+  "action_eligibility": true,
+  "abstention_required": false
+}

@@ -1,0 +1,24 @@
+{
+  "name": "prompt-runner01",
+  "type": "backend",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/prompt-runner01",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "uvicorn api:app --host 0.0.0.0 --port 8001",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8001,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

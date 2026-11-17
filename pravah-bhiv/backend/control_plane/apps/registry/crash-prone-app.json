@@ -1,0 +1,9 @@
+{
+  "name": "crash-prone-app",
+  "type": "python",
+  "start_command": "python app.py",
+  "environments": [
+    "dev"
+  ],
+  "port": 8080
+}

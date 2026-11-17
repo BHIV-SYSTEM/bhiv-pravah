@@ -1,0 +1,38 @@
+{
+  "spec_version": "1.0",
+  "generated_at": "2026-03-12T07:18:00.404108Z",
+  "name": "github",
+  "type": "frontend",
+  "repo_path_or_url": "https://github.com/I-am-ShivamPal/multi-agent-control-plane-frontend",
+  "source_type": "github",
+  "build_command": "npm install && npm run build",
+  "start_command": "npm start",
+  "health_endpoint": "/index.html",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 3000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  },
+  "service_metadata": {
+    "source_type": "github",
+    "source_host": "github.com",
+    "source_path": "/I-am-ShivamPal/multi-agent-control-plane-frontend",
+    "service_name": "github",
+    "runtime_type": "frontend",
+    "detected_at": "2026-03-12T07:18:00.404108Z",
+    "provider": "github",
+    "owner": "I-am-ShivamPal",
+    "repository": "multi-agent-control-plane-frontend",
+    "repo_https_url": "https://github.com/I-am-ShivamPal/multi-agent-control-plane-frontend"
+  }
+}

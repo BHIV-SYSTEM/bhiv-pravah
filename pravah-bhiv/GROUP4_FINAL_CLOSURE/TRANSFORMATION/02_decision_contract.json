@@ -1,0 +1,21 @@
+{
+  "decision_type": "action_request_eligible",
+  "action": "noop",
+  "parameters": {
+    "reason": "TEMPORAL_ALLOW",
+    "ruling": "ALLOW",
+    "action_eligibility": true,
+    "abstention_required": false,
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001",
+    "trace_id": null,
+    "execution_id": null,
+    "contract_version": "group2.temporal-applicability.v1",
+    "authority": "Group 2 Temporal Applicability",
+    "evidence": [
+      "Observation timestamp (2026-08-13T09:14:22Z) verified from canonical payload."
+    ]
+  },
+  "version": "v1"
+}

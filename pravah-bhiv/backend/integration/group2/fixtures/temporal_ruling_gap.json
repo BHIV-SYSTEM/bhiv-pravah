@@ -1,0 +1,17 @@
+{
+  "contract_version": "group2.temporal-applicability.v1",
+  "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+  "context_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "ruling": "GAP",
+  "applicable_window": null,
+  "source_reference_time": null,
+  "temporal_relationship": "UNKNOWN",
+  "evidence": [
+    "Observation timestamp missing from canonical payload."
+  ],
+  "confidence": 0.0,
+  "reason": "Missing required temporal provenance in Group 3 observation.",
+  "authority": "Group 2 Temporal Applicability",
+  "action_eligibility": false,
+  "abstention_required": true
+}

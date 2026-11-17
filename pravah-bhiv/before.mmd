@@ -1,0 +1,36 @@
+flowchart LR
+  subgraph Rayyan[Rayyan - Observability Stream]
+    RProducers[Instrumented Services]
+    RStream[SSE / per-trace queue]
+    RStore[Replay Journal]
+  end
+
+  subgraph Ritesh[Decision & Enforcement]
+    Sarathi[Sarathi Enforcement]
+    DecisionBrain[Decision Brain]
+    Lineage[Execution Lineage]
+  end
+
+  subgraph Shivam[Control Plane & Dashboard]
+    Poller[Runtime Poller]
+    AppRegistry[apps_registry.json]
+    Dashboard[Next.js Dashboard]
+    Aggregator[FastAPI Aggregator]
+  end
+
+  RProducers --> RStream --> RStore
+  RProducers --> DecisionBrain
+  DecisionBrain --> Sarathi
+  Poller --> Aggregator
+  AppRegistry --> Aggregator
+  Aggregator --> Dashboard
+  DecisionBrain --> Aggregator
+
+  note right of Poller
+    Poller writes CSV/JSON to disk
+    Aggregator reads files if present
+  end
+
+  note left of RStream
+    Rayyan provides canonical events
+  end

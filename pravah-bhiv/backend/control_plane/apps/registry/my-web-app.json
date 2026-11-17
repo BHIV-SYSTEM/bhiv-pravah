@@ -1,0 +1,23 @@
+{
+  "name": "my-web-app",
+  "type": "frontend",
+  "repo_path_or_url": "https://github.com/example/my-web-app",
+  "build_command": "npm install && npm run build",
+  "start_command": "npm start",
+  "health_endpoint": "/index.html",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 3000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

@@ -1,0 +1,37 @@
+{
+    "registry_version": "1.0",
+    "registry_kind": "capability",
+    "capability_id": "group3-field-edge",
+    "capability_name": "field_observation_producer",
+    "capability_type": "edge_robotics",
+    "owner": {
+        "group": "group3",
+        "module_id": "group3-field-edge"
+    },
+    "maturity": "V1",
+    "status": "DOCUMENTED",
+    "runtime": {
+        "service_hosted": false,
+        "endpoint": null
+    },
+    "produces": [
+        "observation_mission_package"
+    ],
+    "device": {
+        "device_id": "G3-LIDAR-001",
+        "hardware_verified": false,
+        "calibration_status": "NOT_VERIFIED",
+        "testing_status": "NOT_TESTED"
+    },
+    "source": {
+        "is_synthetic": true,
+        "source_type": "SYNTHETIC_TEST"
+    },
+    "metadata": {
+        "registration_scope": "DOCUMENTED_DEVICE_AND_OBSERVATION_SOURCE",
+        "telemetry_stream_exists": false,
+        "live_service_exists": false,
+        "observation_endpoint": null,
+        "note": "Group 3 emits an observation mission package and hosts no runtime service. Device is documented only and must not be represented as calibrated, tested, verified, or actively streaming telemetry."
+    }
+}

@@ -1,0 +1,43 @@
+// ⚠️ DEPRECATED — DO NOT USE
+// Use: schemas/signal_schema.json
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Runtime Payload Contract",
+  "description": "FROZEN contract between runtime emission and RL consumption. NO optional renaming allowed.",
+  "type": "object",
+  "required": ["app", "env", "state", "latency_ms", "errors_last_min", "workers"],
+  "properties": {
+    "app": {
+      "type": "string",
+      "description": "Application identifier",
+      "minLength": 1
+    },
+    "env": {
+      "type": "string",
+      "description": "Environment name",
+      "enum": ["dev", "stage", "prod"]
+    },
+    "state": {
+      "type": "string",
+      "description": "Application state",
+      "enum": ["running", "crashed", "degraded", "starting", "stopped"]
+    },
+    "latency_ms": {
+      "type": "number",
+      "description": "Response latency in milliseconds",
+      "minimum": 0
+    },
+    "errors_last_min": {
+      "type": "integer",
+      "description": "Error count in last minute",
+      "minimum": 0
+    },
+    "workers": {
+      "type": "integer",
+      "description": "Current worker count",
+      "minimum": 0
+    }
+  },
+  "additionalProperties": false
+}

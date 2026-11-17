@@ -1,0 +1,24 @@
+{
+  "name": "block-chain-updated",
+  "type": "backend",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/block-chain-updated",
+  "source_type": "go",
+  "build_command": "go build ./core/relay-chain/cmd/relay",
+  "start_command": "go run ./core/relay-chain/cmd/relay",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 8004,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  }
+}

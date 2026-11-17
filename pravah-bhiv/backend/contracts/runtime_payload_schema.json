@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "required": ["app_id", "cpu", "memory"],
+  "properties": {
+    "app_id": { "type": "string" },
+    "cpu": { "type": "number" },
+    "memory": { "type": "number" },
+    "error_rate": { "type": "number" },
+    "timestamp": { "type": "string" },
+    "event_type": { "type": "string" },
+    "source": { "type": "string" }
+  }
+}
+// ⚠️ DEPRECATED — DO NOT USE

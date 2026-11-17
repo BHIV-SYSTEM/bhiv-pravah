@@ -1,0 +1,20 @@
+{
+  "name": "bhiv-insight-flow-backend",
+  "type": "service",
+  "repo_path_or_url": "C:/Users/black/OneDrive/Desktop/Pravah/bhiv-core-bucket-karma-prana-orchrstration-insightcore-insightflow/Insight_Flow-main/backend",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python -m uvicorn app.main:app --port 8007",
+  "health_endpoint": "/health",
+  "environments": ["dev", "stage", "prod"],
+  "port": 8007,
+  "resources": {
+    "cpu": "0.3",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 2,
+    "target_cpu_percent": 80
+  }
+}

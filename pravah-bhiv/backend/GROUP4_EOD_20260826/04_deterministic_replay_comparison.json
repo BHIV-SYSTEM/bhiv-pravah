@@ -1,0 +1,11 @@
+{
+  "observation_id_match": true,
+  "canonical_record_id_match": true,
+  "context_id_match": true,
+  "context_id": null,
+  "ruling_match": true,
+  "abstention_record_id_match": true,
+  "action_request_created": false,
+  "execution_id_may_differ": true,
+  "event_id_may_differ": true
+}

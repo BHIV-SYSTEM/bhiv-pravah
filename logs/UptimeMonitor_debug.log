@@ -1,0 +1,2 @@
+2026-09-07 15:37:19 | agent.UptimeMonitor | INFO | Action: status_change | Status: UP | previous_status=None | reason=Initial status check
+2026-09-07 15:37:19 | agent.UptimeMonitor | INFO | Agent monitoring started | initial_status=UP

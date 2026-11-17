@@ -1,0 +1,2 @@
+timestamp,service_name,status,uptime_seconds,downtime_seconds,availability_percent,environment
+2026-09-07T15:37:19.183215,restart_dev,success,0,0,100,dev

@@ -1,0 +1,34 @@
+{
+  "registry_version": "1.0",
+  "registry_kind": "capability",
+  "capability_id": "replay-runtime",
+  "capability_name": "execution_replay_and_verification",
+  "capability_type": "replay",
+  "owner": {
+    "group": "group4",
+    "module_id": "replay-runtime"
+  },
+  "maturity": "V1",
+  "status": "PRESENT",
+  "runtime": {
+    "service_hosted": false,
+    "endpoint": null
+  },
+  "produces": [
+    "replay_result",
+    "replay_verification"
+  ],
+  "metadata": {
+    "implementation_status": "PRESENT",
+    "verification_evidence": [
+      "replay_verifier.py",
+      "replay_index.py",
+      "test_replay_sovereignty.py",
+      "test_concurrent_replay.py",
+      "test_tampered_replay.py",
+      "test_order_corruption.py"
+    ],
+    "runtime_endpoint": "NOT_VERIFIED",
+    "integration_status": "LOCAL_IMPLEMENTATION_PRESENT"
+  }
+}

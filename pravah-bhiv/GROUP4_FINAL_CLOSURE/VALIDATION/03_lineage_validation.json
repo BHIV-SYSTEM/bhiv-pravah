@@ -1,0 +1,9 @@
+{
+  "closure_run_id": "group4-phase16-closure-run",
+  "source_observation_id": "TC-Z03-F02-LIDAR-OBS001",
+  "validation_result": "PASS",
+  "observation_id_match": true,
+  "canonical_record_id_match": true,
+  "context_id_match": true,
+  "identity_substitution_detected": false
+}

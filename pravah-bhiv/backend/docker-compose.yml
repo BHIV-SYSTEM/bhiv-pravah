@@ -1,0 +1,539 @@
+# ============================================================
+# Pravah Development Docker Compose
+# Target: Local Development & CI/CD Testing
+# Images: Built from ./Dockerfile
+# Profiles:
+#   dev    — development services (default)
+#   prod   — production services (local testing)
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # Redis Event Bus — shared by all Pravah services
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: pravah-redis
+    profiles: [dev, prod]
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory ${REDIS_MAX_MEMORY:-512mb}
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --loglevel notice
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "pravah-redis"
+
+  # ----------------------------------------------------------
+  # Control Plane API — Flask/Gunicorn (port 7000)
+  # Agent runtime, decision endpoint, registry management
+  # Built locally from Dockerfile
+  # ----------------------------------------------------------
+  control-plane:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-control-plane:latest
+    container_name: pravah-control-plane
+    profiles: [dev, prod]
+    ports:
+      - "${CONTROL_PLANE_PORT:-7000}:7000"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-2}
+      - PORT=7000
+      - SSPL_SECRET_KEY=${SSPL_SECRET_KEY:-dev-key}
+      - LINEAGE_SIGNING_KEY=${LINEAGE_SIGNING_KEY:-dev-key}
+      - AUTONOMY_DECISIONS_ENABLED=${AUTONOMY_DECISIONS_ENABLED:-true}
+      - AUTONOMY_LEARNING_ENABLED=${AUTONOMY_LEARNING_ENABLED:-false}
+      - EMERGENCY_FREEZE_ENABLED=${EMERGENCY_FREEZE_ENABLED:-false}
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - DEMO_FREEZE_MODE=${DEMO_FREEZE_MODE:-false}
+      # Observed service URLs — override at Yotta deploy time
+      - PRAVAH_GURUKUL_API=${PRAVAH_GURUKUL_API:-http://gurukul-backend:3000}
+      - PRAVAH_HR_API=${PRAVAH_HR_API:-http://infiverse-hr-platform:8000}
+      - PRAVAH_BHIV_HR_AGENT=${PRAVAH_BHIV_HR_AGENT:-http://infiverse-hr-agent:8000}
+      - PRAVAH_BHIV_HR_LANGGRAPH=${PRAVAH_BHIV_HR_LANGGRAPH:-http://infiverse-hr-langgraph:8000}
+      - PRAVAH_PARIKSHAK_API=${PRAVAH_PARIKSHAK_API:-http://parikshak-system:8080}
+      - PRAVAH_CRM_API=${PRAVAH_CRM_API:-http://crm-api:8001}
+      - PRAVAH_MAIN_API=${PRAVAH_MAIN_API:-http://decision-brain:8000}
+      - DECISION_BRAIN_PORT=${DECISION_BRAIN_PORT:-8000}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - .:/app
+    command: >
+      gunicorn wsgi:app
+      --workers ${GUNICORN_WORKERS:-4}
+      --worker-class sync
+      --bind 0.0.0.0:7000
+      --timeout 120
+      --keep-alive 5
+      --access-logfile /app/logs/access.log
+      --error-logfile /app/logs/error.log
+      --log-level info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+        tag: "pravah-control-plane"
+
+  # ----------------------------------------------------------
+  # Decision Brain — FastAPI/Uvicorn (port 8000)
+  # Policy engine, RL decision layer, telemetry ingestion
+  # Built locally from Dockerfile
+  # ----------------------------------------------------------
+  decision-brain:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-decision-brain:latest
+    container_name: pravah-decision-brain
+    profiles: [dev, prod]
+    ports:
+      - "${DECISION_BRAIN_PORT:-8010}:8000"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-2}
+      - PORT=8000
+      - SSPL_SECRET_KEY=${SSPL_SECRET_KEY:-dev-key}
+      - LINEAGE_SIGNING_KEY=${LINEAGE_SIGNING_KEY:-dev-key}
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - DEMO_FREEZE_MODE=${DEMO_FREEZE_MODE:-false}
+      - PRAVAH_MAIN_API=${PRAVAH_MAIN_API:-http://decision-brain:8000}
+      - DECISION_BRAIN_PORT=8000
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-http://localhost:4500,http://localhost:3000,http://localhost:8000}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - .:/app
+    command: >
+      uvicorn control_plane.backend.app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers ${UVICORN_WORKERS:-2}
+      --log-level info
+      --access-log
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+        tag: "pravah-decision-brain"
+
+  # ----------------------------------------------------------
+  # Observer Server — FastAPI/Uvicorn (port 8600)
+  # Passive health probing of 20+ registered services
+  # Built locally from Dockerfile
+  # ----------------------------------------------------------
+  observer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-observer:latest
+    container_name: pravah-observer
+    profiles: [dev, prod]
+    ports:
+      - "${OBSERVER_PORT:-8600}:8600"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - PRAVAH_OBSERVER_PORT=8600
+      - PRAVAH_CONTROL_PLANE=http://control-plane:7000
+      - PRAVAH_MAIN_API=http://decision-brain:8000
+      # Observed services — set YOTTA production URLs below
+      - PRAVAH_GURUKUL_API=${PRAVAH_GURUKUL_API:-http://gurukul-backend:3000}
+      - PRAVAH_HR_API=${PRAVAH_HR_API:-http://infiverse-hr-platform:8000}
+      - PRAVAH_BHIV_HR_AGENT=${PRAVAH_BHIV_HR_AGENT:-http://infiverse-hr-agent:8000}
+      - PRAVAH_BHIV_HR_LANGGRAPH=${PRAVAH_BHIV_HR_LANGGRAPH:-http://infiverse-hr-langgraph:8000}
+      - PRAVAH_PARIKSHAK_API=${PRAVAH_PARIKSHAK_API:-http://parikshak-system:8080}
+      - PRAVAH_CRM_API=${PRAVAH_CRM_API:-http://crm-api:8001}
+      - PRAVAH_PROMPT_RUNNER_API=${PRAVAH_PROMPT_RUNNER_API:-http://prompt-runner01:8001}
+      - PRAVAH_TRADE_BOT_API=${PRAVAH_TRADE_BOT_API:-http://trade-bot:8002}
+      - PRAVAH_TTG_API=${PRAVAH_TTG_API:-http://ttg:3005}
+      - PRAVAH_UNIGURU_API=${PRAVAH_UNIGURU_API:-http://uniguru-ai:8003}
+      - PRAVAH_WORKFLOW_BLACKHOLE_API=${PRAVAH_WORKFLOW_BLACKHOLE_API:-http://workflow-blackhole:5005}
+      - PRAVAH_BLOCKCHAIN_API=${PRAVAH_BLOCKCHAIN_API:-http://block-chain:8004}
+      - PRAVAH_BHIV_KARMA=${PRAVAH_BHIV_KARMA:-http://bhiv-karma:8000}
+      - PRAVAH_BHIV_BUCKET=${PRAVAH_BHIV_BUCKET:-http://bhiv-bucket:8001}
+      - PRAVAH_BHIV_CORE=${PRAVAH_BHIV_CORE:-http://bhiv-core:8002}
+      - PRAVAH_BHIV_WORKFLOW=${PRAVAH_BHIV_WORKFLOW:-http://bhiv-workflow:8003}
+      - PRAVAH_BHIV_UAO=${PRAVAH_BHIV_UAO:-http://bhiv-uao:8004}
+      - PRAVAH_BHIV_INSIGHT_CORE=${PRAVAH_BHIV_INSIGHT_CORE:-http://bhiv-insight-core:8005}
+      - PRAVAH_BHIV_INSIGHT_FLOW_BRIDGE=${PRAVAH_BHIV_INSIGHT_FLOW_BRIDGE:-http://bhiv-insight-flow-bridge:8006}
+      - PRAVAH_BHIV_INSIGHT_FLOW_BACKEND=${PRAVAH_BHIV_INSIGHT_FLOW_BACKEND:-http://bhiv-insight-flow-backend:8007}
+      - PRAVAH_BHIV_KESHAV=${PRAVAH_BHIV_KESHAV:-http://bhiv-keshav-4:5000}
+      - PRAVAH_BHIV_SARATHI=${PRAVAH_BHIV_SARATHI:-http://bhiv-sarathi:9002}
+      - PRAVAH_MASTERDB_API=${PRAVAH_MASTERDB_API:-http://masterdb-service:8000}
+      - PRAVAH_MITRA_API=${PRAVAH_MITRA_API:-http://bhiv-mitra:8000}
+      - PRAVAH_SVACS_API=${PRAVAH_SVACS_API:-http://bhiv-svacs:8000}
+      - PRAVAH_SAMRUDDHI_API=${PRAVAH_SAMRUDDHI_API:-http://samruddhi-api:8000}
+      - PRAVAH_SAMRUDDHI_HFT=${PRAVAH_SAMRUDDHI_HFT:-http://samruddhi-hft:8000}
+      - PRAVAH_BHIV_CORE_EVENTS=${PRAVAH_BHIV_CORE_EVENTS:-http://bhiv-core-events:8005}
+      - PRAVAH_BHIV_CORE_WEBHOOKS=${PRAVAH_BHIV_CORE_WEBHOOKS:-http://bhiv-core-webhooks:8006}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - .:/app
+    command: >
+      uvicorn observer_server:app
+      --host 0.0.0.0
+      --port 8600
+      --log-level info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8600/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    depends_on:
+      control-plane:
+        condition: service_healthy
+      decision-brain:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "pravah-observer"
+
+  # ----------------------------------------------------------
+  # Deploy Workers (3 workers for parallel deployments)
+  # Built locally from Dockerfile
+  # ----------------------------------------------------------
+  deploy-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-worker:latest
+    container_name: pravah-deploy-worker-1
+    profiles: [dev, prod]
+    environment:
+      - WORKER_ID=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    command: python -m control_plane.agents.multi_deploy_agent --env ${ENVIRONMENT:-dev} --workers 1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "pravah-worker-1"
+
+  deploy-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-worker:latest
+    container_name: pravah-deploy-worker-2
+    profiles: [dev, prod]
+    environment:
+      - WORKER_ID=2
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    command: python -m control_plane.agents.multi_deploy_agent --env ${ENVIRONMENT:-dev} --workers 1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "pravah-worker-2"
+
+  deploy-worker-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-worker:latest
+    container_name: pravah-deploy-worker-3
+    profiles: [dev, prod]
+    environment:
+      - WORKER_ID=3
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    command: python -m control_plane.agents.multi_deploy_agent --env ${ENVIRONMENT:-dev} --workers 1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "pravah-worker-3"
+
+  # ----------------------------------------------------------
+  # Queue Monitor
+  # Built locally from Dockerfile
+  # ----------------------------------------------------------
+  queue-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-monitor:latest
+    container_name: pravah-queue-monitor
+    profiles: [dev, prod]
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    command: python -m monitoring.queue_monitor --continuous --cycles 0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+        tag: "pravah-queue-monitor"
+
+  # ----------------------------------------------------------
+  # System Health Monitor
+  # Built locally from Dockerfile
+  # ----------------------------------------------------------
+  health-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pravah-monitor:latest
+    container_name: pravah-health-monitor
+    profiles: [dev, prod]
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+      - REDIS_HOST=redis
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    command: python -m monitoring.infra_health_monitor --env ${ENVIRONMENT:-dev} --continuous
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+        tag: "pravah-health-monitor"
+
+  # ----------------------------------------------------------
+  # Prometheus Metrics Scraper
+  # ----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: pravah-prometheus
+    profiles: [dev, prod]
+    ports:
+      - "${PROMETHEUS_PORT:-9093}:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - control-plane
+      - observer
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+        tag: "pravah-prometheus"
+
+  # ----------------------------------------------------------
+  # Frontend Operator Console — Next.js 16 (port 4500)
+  # Built locally from ../frontend/Dockerfile
+  # ----------------------------------------------------------
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: pravah-frontend:latest
+    container_name: pravah-frontend
+    profiles: [dev, prod]
+    ports:
+      - "${FRONTEND_PORT:-4500}:4500"
+    env_file:
+      - ../.env.frontend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4500', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    depends_on:
+      - control-plane
+      - decision-brain
+      - observer
+    networks:
+      - pravah-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+        tag: "pravah-frontend"
+
+# ----------------------------------------------------------
+# Networks
+# ----------------------------------------------------------
+networks:
+  pravah-network:
+    driver: bridge
+    name: pravah-dev-network
+
+# ----------------------------------------------------------
+# Volumes
+# ----------------------------------------------------------
+volumes:
+  redis_data:
+    driver: local
+    name: pravah-redis-data
+  prometheus_data:
+    driver: local
+    name: pravah-prometheus-data

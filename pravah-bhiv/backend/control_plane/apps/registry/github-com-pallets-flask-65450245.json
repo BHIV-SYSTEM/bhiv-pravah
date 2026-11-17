@@ -1,0 +1,38 @@
+{
+  "spec_version": "1.0",
+  "generated_at": "2026-02-20T05:01:05.467688Z",
+  "name": "github-com-pallets-flask-65450245",
+  "type": "backend",
+  "repo_path_or_url": "https://github.com/pallets/flask",
+  "source_type": "github",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python app.py",
+  "health_endpoint": "/health",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 5000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  },
+  "service_metadata": {
+    "source_type": "github",
+    "source_host": "github.com",
+    "source_path": "/pallets/flask",
+    "service_name": "github-com-pallets-flask-65450245",
+    "runtime_type": "backend",
+    "detected_at": "2026-02-20T05:01:05.467676Z",
+    "provider": "github",
+    "owner": "pallets",
+    "repository": "flask",
+    "repo_https_url": "https://github.com/pallets/flask"
+  }
+}

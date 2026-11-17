@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web2
+  template:
+    metadata:
+      labels:
+        app: web2
+    spec:
+      containers:
+      - name: web2
+        image: rayyandevopss/web2-service:latest
+        ports:
+        - containerPort: 5002
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web2-service
+spec:
+  selector:
+    app: web2
+  ports:
+    - port: 5002
+      targetPort: 5002
+  type: ClusterIP

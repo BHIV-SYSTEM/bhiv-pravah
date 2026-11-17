@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web1
+  template:
+    metadata:
+      labels:
+        app: web1
+    spec:
+      containers:
+      - name: web1
+        image: rayyandevopss/web1-service:latest
+        ports:
+        - containerPort: 5001
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web1-service
+spec:
+  selector:
+    app: web1
+  ports:
+    - port: 5001
+      targetPort: 5001
+  type: ClusterIP

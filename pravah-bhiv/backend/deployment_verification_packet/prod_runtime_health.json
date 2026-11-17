@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "event": "prod_runtime_health_validation",
+  "environment": "prod",
+  "platform": "yotta",
+  "timestamp": "2026-07-29T04:59:03.425547+00:00",
+  "verdict": "PASS",
+  "summary": {
+    "total_checks": 6,
+    "passed": 6,
+    "failed": 0,
+    "critical_failures": [],
+    "non_critical_failures": []
+  },
+  "checks": [
+    {
+      "name": "control-plane",
+      "url": "http://localhost:7000/api/health",
+      "status": "PASS",
+      "http_status": 200,
+      "latency_ms": 9.5,
+      "detail": "{\"environment\": \"prod\", \"service\": \"canonical-decision-api\", \"status\": \"healthy\"}",
+      "checked_at": "2026-07-29T04:59:03.383574+00:00",
+      "critical": true,
+      "description": "Flask/Gunicorn Agent API"
+    },
+    {
+      "name": "decision-brain",
+      "url": "http://localhost:8000/health",
+      "status": "PASS",
+      "http_status": 200,
+      "latency_ms": 4.6,
+      "detail": "{\"status\": \"healthy\", \"demo_frozen\": true, \"stateless\": true, \"success_rate\": 1.0}",
+      "checked_at": "2026-07-29T04:59:03.388422+00:00",
+      "critical": true,
+      "description": "FastAPI Policy Engine"
+    },
+    {
+      "name": "observer",
+      "url": "http://localhost:8600/health",
+      "status": "PASS",
+      "http_status": 200,
+      "latency_ms": 4.5,
+      "detail": "{\"status\": \"ok\", \"service\": \"pravah-observer\", \"ts\": \"2026-07-29T04:59:03.392089\"}",
+      "checked_at": "2026-07-29T04:59:03.393153+00:00",
+      "critical": true,
+      "description": "FastAPI Observer Server"
+    },
+    {
+      "name": "observer-api-status",
+      "url": "http://localhost:8600/api/status",
+      "status": "PASS",
+      "http_status": 200,
+      "latency_ms": 4.5,
+      "detail": "{\"started_at\": \"2026-07-29T04:47:48.744566\", \"poll_count\": 0, \"services\": {}}",
+      "checked_at": "2026-07-29T04:59:03.398101+00:00",
+      "critical": true,
+      "description": "Observer polling status"
+    },
+    {
+      "name": "observer-metrics",
+      "url": "http://localhost:8600/api/metrics",
+      "status": "PASS",
+      "http_status": 200,
+      "latency_ms": 4.3,
+      "detail": "# HELP observer_poll_count_total Total number of active polling loops executed\n# TYPE observer_poll_count_total counter\nobserver_poll_count_total 0\n# HELP observer_monitored_services_total Total number of monitored services\n# TYPE observer_monitored_services_total gauge\nobserver_monitored_services_t",
+      "checked_at": "2026-07-29T04:59:03.402690+00:00",
+      "critical": false,
+      "description": "Prometheus metrics endpoint"
+    },
+    {
+      "name": "redis",
+      "url": "tcp://localhost:6379",
+      "status": "PASS",
+      "http_status": null,
+      "latency_ms": 22.0,
+      "detail": "TCP connection established",
+      "checked_at": "2026-07-29T04:59:03.425072+00:00",
+      "critical": true,
+      "description": "Redis Event Bus (TCP)"
+    }
+  ],
+  "base_urls": {
+    "control_plane": "http://localhost:7000",
+    "decision_brain": "http://localhost:8000",
+    "observer": "http://localhost:8600"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "traces": [
+    "trace-9bf733a6-b7e0-437b-8c3b-17c91ea78cb8",
+    "trace-2d90169d-4570-4b29-9252-8ad2a345b7ba",
+    "trace-2a79bcc6-2f9a-4ebc-95e1-bf86acaf79e0"
+  ],
+  "timestamps": {
+    "trace-2d90169d-4570-4b29-9252-8ad2a345b7ba": 1789454790.910463,
+    "trace-9bf733a6-b7e0-437b-8c3b-17c91ea78cb8": 1789454824.6273553,
+    "trace-2a79bcc6-2f9a-4ebc-95e1-bf86acaf79e0": 1789454856.9758308
+  }
+}

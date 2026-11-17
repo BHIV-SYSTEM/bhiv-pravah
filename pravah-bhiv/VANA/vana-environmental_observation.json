@@ -1,0 +1,25 @@
+{
+    "registry_version": "1.0",
+    "registry_kind": "capability",
+    "capability_id": "vana-environmental_observation",
+    "capability_name": "environmental_observation",
+    "capability_type": "environmental_observation",
+    "owner": {
+        "group": "group4",
+        "module_id": "VANA"
+    },
+    "maturity": "V1",
+    "status": "PRESENT",
+    "runtime": {
+        "service_hosted": true,
+        "endpoint": "POST /vana/execute"
+    },
+    "produces": [],
+    "metadata": {
+        "resource_scope": "mangrove_site_*",
+        "risk_classification": "LOW",
+        "requires_approval": false,
+        "system_id": "VANA",
+        "operation": "environmental_observation"
+    }
+}

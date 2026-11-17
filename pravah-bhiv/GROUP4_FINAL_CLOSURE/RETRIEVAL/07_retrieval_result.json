@@ -1,0 +1,27 @@
+{
+  "action_request_id": "ar-ac1ed033ff9e2941e05c28c8",
+  "lineage": {
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001"
+  },
+  "temporal_ruling": {
+    "ruling": "ALLOW",
+    "action_eligibility": true,
+    "abstention_required": false
+  },
+  "upstream_provenance": {
+    "contract_version": "group2.temporal-applicability.v1",
+    "authority": "Group 2 Temporal Applicability",
+    "evidence": [
+      "Observation timestamp (2026-08-13T09:14:22Z) verified from canonical payload."
+    ]
+  },
+  "evidence_classification": "CONTROLLED",
+  "group4_action_metadata": {
+    "governance_status": "POLICY_ADMITTED",
+    "governance_reason": null,
+    "created_at": "2026-08-21T09:44:26.042533+00:00"
+  },
+  "status": "VALIDATED"
+}

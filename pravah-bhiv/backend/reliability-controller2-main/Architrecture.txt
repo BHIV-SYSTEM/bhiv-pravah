@@ -1,0 +1,20 @@
+Architecture Explanation
+
+system consists of four main components:
+web1 (application service)
+web2 (application service)
+monitor (checks health)
+executer (performs recovery)
+
+Working Flow
+
+ Monitor continuously checks services →
+ If any service is down →
+ It sends a request to executer →
+ Executer restarts the service →
+ System becomes healthy again.”
+ 
+Short version:
+ “Monitor → Detect → Execute → Recover”
+
+

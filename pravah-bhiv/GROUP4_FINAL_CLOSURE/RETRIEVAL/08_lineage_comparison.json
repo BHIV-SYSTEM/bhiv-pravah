@@ -1,0 +1,19 @@
+{
+  "closure_run_id": "group4-phase16-closure-run",
+  "original": {
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001"
+  },
+  "retrieved": {
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "group1-obs-20260813-9a3b",
+    "context_id": "ctx-tc-001"
+  },
+  "result": {
+    "observation_match": true,
+    "canonical_record_match": true,
+    "context_match": true,
+    "substitution_detected": false
+  }
+}

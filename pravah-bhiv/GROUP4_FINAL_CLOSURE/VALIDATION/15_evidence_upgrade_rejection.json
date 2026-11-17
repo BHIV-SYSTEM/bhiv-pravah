@@ -1,0 +1,6 @@
+{
+  "test": "evidence_upgrade",
+  "input": "PHYSICAL",
+  "result": "REJECTED",
+  "reason": "ActionRequest evidence_classification must be 'CONTROLLED'"
+}

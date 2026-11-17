@@ -1,0 +1,146 @@
+"""
+Integration Endpoints for External Consumers
+Add these to agent_api.py to enable external integration
+"""
+
+# Add these imports at the top of agent_api.py:
+# from core.runtime_event_validator import validate_and_log_payload
+# import datetime
+
+# Add these endpoints before the @app.route('/') root documentation endpoint:
+
+"""
+@app.route('/api/runtime/latest', methods=['GET'])
+def get_runtime_latest():
+    '''Get latest runtime event data for external integration.'''
+    try:
+        # Get latest perception from agent's perception layer
+        perceptions = agent.perception_layer.get_recent_perceptions(limit=1)
+        
+        if perceptions:
+            latest = perceptions[0]
+            return jsonify({
+                'app_id': latest.data.get('app_id', 'unknown'),
+                'event_type': latest.type,
+                'timestamp': latest.timestamp,
+                'environment': agent.env,
+                'data': latest.data
+            }), 200
+        else:
+            # No recent perceptions, return idle state
+            return jsonify({
+                'app_id': None,
+                'event_type': 'idle',
+                'timestamp': datetime.datetime.now().isoformat(),
+                'environment': agent.env,
+                'data': {}
+            }), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/agent/process', methods=['POST'])
+def process_runtime_payload():
+    '''Process runtime payload through agent decision layer.
+    
+    Request: {"app_id": "app-123", "event_type": "crash", "exit_code": 1}
+    Response: {"decision": {"action": "restart", "confidence": 0.95}, "status": "validated"}
+    '''
+    try:
+        payload = request.get_json()
+        
+        if not payload:
+            return jsonify({'error': 'No payload provided'}), 400
+        
+        # Validate payload
+        from core.runtime_event_validator import validate_and_log_payload
+        is_valid, validated_data, error_msg = validate_and_log_payload(
+            payload,
+            "EXTERNAL_INTEGRATION"
+        )
+        
+        if not is_valid:
+            return jsonify({'error': 'Invalid payload', 'message': error_msg}), 400
+        
+        # Make decision through agent's decision layer
+        decision = agent._decide(validated_data)
+        
+        # Extract action name
+        action_name = agent._map_rl_action_to_name(decision.get('rl_action', 0))
+        
+        # Format response
+        response = {
+            'decision': {
+                'action': action_name,
+                'confidence': decision.get('execution_result', {}).get('confidence', 1.0),
+                'reasoning': decision.get('rl_reasoning', 'Decision made based on runtime state')
+            },
+            'status': decision.get('execution_result', {}).get('status', 'validated')
+        }
+        
+        return jsonify(response), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/action/execute', methods=['POST'])
+def execute_action_endpoint():
+    '''Execute decided action through safe orchestrator.
+    
+    Request: {"action": "restart", "app_id": "app-123", "confidence": 0.95}
+    Response: {"success": true, "action": "restart", "result": "Action executed"}
+    '''
+    try:
+        payload = request.get_json()
+        
+        if not payload or 'action' not in payload:
+            return jsonify({'error': 'Action not specified'}), 400
+        
+        action = payload['action']
+        context = {
+            'app_name': payload.get('app_id', 'unknown'),
+            'confidence': payload.get('confidence', 1.0),
+            'source': 'external_integration'
+        }
+        
+        # Execute through safe orchestrator
+        result = agent.safe_executor.execute_action(
+            action=action,
+            context=context,
+            source='external_api'
+        )
+        
+        # Format response
+        response = {
+            'success': result.get('success', False),
+            'action': action,
+            'timestamp': datetime.datetime.now().isoformat(),
+            'result': result.get('message', 'Unknown result')
+        }
+        
+        return jsonify(response), 200 if result.get('success') else 400
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+"""
+
+# Also add to the root endpoint documentation (in the 'endpoints' dict):
+"""
+'runtime_latest': {
+    'path': '/api/runtime/latest',
+    'method': 'GET',
+    'description': 'Get latest runtime event data'
+},
+'agent_process': {
+    'path': '/api/agent/process',
+    'method': 'POST',
+    'description': 'Process runtime payload through agent'
+},
+'action_execute': {
+    'path': '/api/action/execute', 
+    'method': 'POST',
+    'description': 'Execute decided action'
+}
+"""

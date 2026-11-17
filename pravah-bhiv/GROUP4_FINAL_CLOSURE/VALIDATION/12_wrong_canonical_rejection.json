@@ -1,0 +1,19 @@
+{
+  "test": "wrong_canonical_id",
+  "input": {
+    "contract_version": "group2.temporal-applicability.v1",
+    "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+    "canonical_record_id": "FORGED_RECORD",
+    "context_id": "ctx-tc-001",
+    "ruling": "ALLOW",
+    "action_eligibility": true,
+    "abstention_required": false,
+    "authority": "Group 2 Temporal Applicability",
+    "evidence": [
+      "Observation timestamp (2026-08-13T09:14:22Z) verified from canonical payload."
+    ]
+  },
+  "result": "REJECTED",
+  "reason": "canonical_record_id lineage mismatch",
+  "substitution_detected": true
+}

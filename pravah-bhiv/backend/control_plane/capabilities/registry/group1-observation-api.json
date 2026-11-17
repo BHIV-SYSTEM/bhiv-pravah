@@ -1,0 +1,49 @@
+{
+    "registry_version": "1.0",
+    "registry_kind": "capability",
+    "capability_id": "group1-observation-api",
+    "capability_name": "canonical_observation_ingestion",
+    "capability_type": "observation_ingestion",
+    "owner": {
+        "group": "group1",
+        "module_id": "vana-masterdb-observation-api"
+    },
+    "maturity": "V1",
+    "status": "DOCUMENTED",
+    "runtime": {
+        "service_hosted": true,
+        "endpoint": "http://163.128.209.18:8013"
+    },
+    "produces": [
+        "canonical_observation_record"
+    ],
+    "metadata": {
+        "service_name": "VANA MasterDB Observation API",
+        "version": "1.0.0",
+        "deployment_status": "DEPLOYED",
+        "runtime_status": "LIVE",
+        "live_endpoint_available": true,
+        "endpoints": [
+            {
+                "method": "POST",
+                "path": "/observations",
+                "purpose": "observation ingestion"
+            },
+            {
+                "method": "GET",
+                "path": "/observations/{observation_id}",
+                "purpose": "canonical observation retrieval"
+            },
+            {
+                "method": "GET",
+                "path": "/health",
+                "purpose": "service health"
+            }
+        ],
+        "canonical_observation_id": "TC-Z03-F02-LIDAR-OBS001",
+        "idempotency_supported": true,
+        "contract_validation": "18/18 passed",
+        "integration_tests": "35/35 passed",
+        "note": "Application-side contract and canonical persistence are locally verified. PostgreSQL/PostGIS VM deployment and final shared-environment end-to-end validation remain pending."
+    }
+}

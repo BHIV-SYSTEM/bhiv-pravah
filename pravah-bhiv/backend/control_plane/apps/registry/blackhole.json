@@ -1,0 +1,35 @@
+{
+  "name": "blackhole",
+  "type": "frontend",
+  "repo_path_or_url": "https://blackhole-workflow.vercel.app/",
+  "source_type": "website",
+  "build_command": "npm install && npm run build",
+  "start_command": "npm start",
+  "health_endpoint": "/index.html",
+  "environments": [
+    "dev",
+    "stage",
+    "prod"
+  ],
+  "port": 3000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  },
+  "service_metadata": {
+    "source_type": "website",
+    "source_host": "blackhole-workflow.vercel.app",
+    "source_path": "/",
+    "service_name": "blackhole",
+    "runtime_type": "frontend",
+    "detected_at": "2026-02-20T04:52:32.298173Z",
+    "provider": "website",
+    "domain": "blackhole-workflow.vercel.app",
+    "base_url": "https://blackhole-workflow.vercel.app"
+  }
+}

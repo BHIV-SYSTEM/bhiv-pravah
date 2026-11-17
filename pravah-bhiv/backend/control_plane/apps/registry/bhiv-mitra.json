@@ -1,0 +1,8 @@
+{
+  "app_id": "bhiv-Mitra",
+  "name": "BHIV Mitra",
+  "port": 8000,
+  "health_endpoint": "/health",
+  "telemetry_target": "/api/runtime",
+  "hmac_enabled": true
+}

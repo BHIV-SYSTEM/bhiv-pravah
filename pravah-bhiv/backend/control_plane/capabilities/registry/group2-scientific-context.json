@@ -1,0 +1,34 @@
+{
+    "registry_version": "1.0",
+    "registry_kind": "capability",
+    "capability_id": "group2-scientific-context",
+    "capability_name": "scientific_contextualisation",
+    "capability_type": "context_resolution",
+    "owner": {
+        "group": "group2",
+        "module_id": "group2-scientific-context-service"
+    },
+    "maturity": "V1",
+    "status": "BLOCKED",
+    "runtime": {
+        "service_hosted": true,
+        "endpoint": null
+    },
+    "produces": [
+        "contextual_result"
+    ],
+    "metadata": {
+        "runtime_status": "LOCAL_NOT_LIVE",
+        "inter_group_automation": "BLOCKED",
+        "declared_path": "/api/v1/group2/context/resolve",
+        "live_endpoint_available": false,
+        "context_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "observation_id": "TC-Z03-F02-LIDAR-OBS001",
+        "parameter_name": "canopy_height",
+        "validation_status": "GAP",
+        "confidence_score": 0.0,
+        "source_citation": "ScienceDirect / Elsevier (2023)",
+        "action_recommendation_available": false,
+        "note": "Group 2 can provide a contextual result locally, but no live inter-group automation is currently available. The supplied canopy_height result is GAP and must not be converted into an execution instruction."
+    }
+}

@@ -1,0 +1,335 @@
+{
+  "ev-e5e3501c36a7495b": {
+    "bundle_id": "bundle-defc1a5f2f1b",
+    "trace_id": "shakti-trace-bebe19b4c680",
+    "execution_id": "exec-0ffd4dc614ac",
+    "decision_id": "dec-fafd81f75fad",
+    "decision_type": "constitutional_compliance",
+    "authority_chain": [
+      "SHAKTI_ORCHESTRATOR",
+      "SHAKTI_GC_VALIDATOR"
+    ],
+    "evidence": [
+      {
+        "rule_id": "rule-40",
+        "status": "PASS",
+        "provenance_signature": "0x48f98ab12"
+      }
+    ],
+    "replay_reference": "ref-98204",
+    "constitutional_hash": "sha256-f8319ab921b72a0f8",
+    "produced_at": "2026-07-21T04:53:05.036734Z",
+    "correlation_id": "shakti-corr-1e87ed7d653e",
+    "source": "SHAKTI_GC",
+    "action": "publish_evidence"
+  },
+  "ev-af438077a0ed4595": {
+    "bundle_id": "bundle-d4d81fd4e9c9",
+    "trace_id": "shakti-trace-48330ebff798",
+    "execution_id": "exec-2dd5aa392cba",
+    "decision_id": "dec-95630ba5e6e7",
+    "decision_type": "constitutional_compliance",
+    "authority_chain": [
+      "SHAKTI_ORCHESTRATOR",
+      "SHAKTI_GC_VALIDATOR"
+    ],
+    "evidence": [
+      {
+        "rule_id": "rule-40",
+        "status": "PASS",
+        "provenance_signature": "0x48f98ab12"
+      }
+    ],
+    "replay_reference": "ref-98204",
+    "constitutional_hash": "sha256-f8319ab921b72a0f8",
+    "produced_at": "2026-07-21T05:23:53.102909Z",
+    "correlation_id": "shakti-corr-c2120fc9a601",
+    "source": "SHAKTI_GC",
+    "action": "publish_evidence"
+  },
+  "ev-df43d246ae33483f": {
+    "bundle_id": "bundle-f3ab8c005e11",
+    "trace_id": "shakti-trace-b73b78db6011",
+    "execution_id": "exec-c2b4cc9d4b73",
+    "decision_id": "dec-9a85667a4e2a",
+    "decision_type": "constitutional_compliance",
+    "authority_chain": [
+      "SHAKTI_ORCHESTRATOR",
+      "SHAKTI_GC_VALIDATOR"
+    ],
+    "evidence": [
+      {
+        "rule_id": "rule-40",
+        "status": "PASS",
+        "provenance_signature": "0x48f98ab12"
+      }
+    ],
+    "replay_reference": "ref-98204",
+    "constitutional_hash": "sha256-f8319ab921b72a0f8",
+    "produced_at": "2026-07-21T10:27:55.645427Z",
+    "correlation_id": "shakti-corr-1785ca644bb9",
+    "source": "SHAKTI_GC",
+    "action": "publish_evidence"
+  },
+  "ev-4173a7a857194ad2": {
+    "bundle_id": "bundle-e8c13efc0c5c",
+    "trace_id": "shakti-trace-9f6f057d75ae",
+    "execution_id": "exec-c319d02fbbe7",
+    "decision_id": "dec-c0ab524cbe7a",
+    "decision_type": "constitutional_compliance",
+    "authority_chain": [
+      "SHAKTI_ORCHESTRATOR",
+      "SHAKTI_GC_VALIDATOR"
+    ],
+    "evidence": [
+      {
+        "rule_id": "rule-40",
+        "status": "PASS",
+        "provenance_signature": "0x48f98ab12"
+      }
+    ],
+    "replay_reference": "ref-98204",
+    "constitutional_hash": "sha256-f8319ab921b72a0f8",
+    "produced_at": "2026-07-24T10:38:23.861701Z",
+    "correlation_id": "shakti-corr-c3c64a5c15a8",
+    "source": "SHAKTI_GC",
+    "action": "publish_evidence"
+  },
+  "ev-940434fb46164a59": {
+    "bundle_id": "bundle-4f969ee39b4b",
+    "trace_id": "intent-trace-e7011e9d1775",
+    "execution_id": "exec-52a6b277c9ee",
+    "decision_id": "dec-3c858b9619a2",
+    "decision_type": "compliance_check",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "PROMPT_RUNNER",
+      "PRAVAH_OBSERVABILITY"
+    ],
+    "evidence": {
+      "attestation": "Verification bundle generated for E2E trace",
+      "compliance": "PASS",
+      "constitutional_hash": "sha256-a94fbe92e3c0d8f0"
+    },
+    "produced_at": "2026-07-24T10:40:46.182906Z",
+    "correlation_id": "intent-trace-e7011e9d1775",
+    "source": "SHAKTI",
+    "action": "publish_evidence"
+  },
+  "ev-c790c3c55f874a23": {
+    "bundle_id": "bundle-2fa8c0022728",
+    "trace_id": "intent-trace-de8130d11e72",
+    "execution_id": "exec-eec3a5240050",
+    "decision_id": "dec-aeb73e408769",
+    "decision_type": "compliance_check",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "PROMPT_RUNNER",
+      "PRAVAH_OBSERVABILITY"
+    ],
+    "evidence": {
+      "attestation": "Verification bundle generated for E2E trace",
+      "compliance": "PASS",
+      "constitutional_hash": "sha256-a94fbe92e3c0d8f0"
+    },
+    "produced_at": "2026-07-24T10:41:10.256630Z",
+    "correlation_id": "intent-trace-de8130d11e72",
+    "source": "SHAKTI",
+    "action": "publish_evidence"
+  },
+  "ev-2bf7e10226e846cd": {
+    "bundle_id": "bundle-a3afe0797ac0",
+    "trace_id": "reg-trace-c972952418d4",
+    "execution_id": "reg-trace-c972952418d4",
+    "decision_id": "dec-89519aa8d5ec",
+    "decision_type": "compliance_attestation",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "CREATOR_CORE",
+      "PRAVAH_REGISTRIES"
+    ],
+    "evidence": {
+      "attestation": "Provenance metadata signature check passed",
+      "discipline": "PASS"
+    },
+    "produced_at": "2026-07-24T12:00:00Z",
+    "correlation_id": "reg-trace-c972952418d4",
+    "source": "creator-core",
+    "action": "log_provenance",
+    "evidence_ref": "ev-2bf7e10226e846cd",
+    "provenance": {
+      "authority_level": "passive_observer",
+      "governance_role": "observability_only",
+      "system_origin": "creator-core",
+      "operator_hash": "prov-e6beb9808eadae62",
+      "ingested_at": "2026-07-24T10:47:49.701974Z",
+      "environment": "dev"
+    }
+  },
+  "ev-b47c7fc94f1d4cc9": {
+    "bundle_id": "bundle-a9859afe4558",
+    "trace_id": "reg-trace-df9046336d18",
+    "execution_id": "reg-trace-df9046336d18",
+    "decision_id": "dec-a7461dfd7e49",
+    "decision_type": "compliance_attestation",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "CREATOR_CORE",
+      "PRAVAH_REGISTRIES"
+    ],
+    "evidence": {
+      "attestation": "Provenance metadata signature check passed",
+      "discipline": "PASS"
+    },
+    "produced_at": "2026-07-24T12:00:00Z",
+    "correlation_id": "reg-trace-df9046336d18",
+    "source": "creator-core",
+    "action": "log_provenance",
+    "evidence_ref": "ev-b47c7fc94f1d4cc9",
+    "provenance": {
+      "authority_level": "passive_observer",
+      "governance_role": "observability_only",
+      "system_origin": "creator-core",
+      "operator_hash": "prov-e6beb9808eadae62",
+      "ingested_at": "2026-07-24T10:49:30.520052Z",
+      "environment": "dev"
+    }
+  },
+  "ev-49c92e8786654f3a": {
+    "bundle_id": "bundle-6d93ec5f5a10",
+    "trace_id": "reg-trace-619bc360595a",
+    "execution_id": "reg-trace-619bc360595a",
+    "decision_id": "dec-c0618f91a8fb",
+    "decision_type": "compliance_attestation",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "CREATOR_CORE",
+      "PRAVAH_REGISTRIES"
+    ],
+    "evidence": {
+      "attestation": "Provenance metadata signature check passed",
+      "discipline": "PASS"
+    },
+    "produced_at": "2026-07-24T12:00:00Z",
+    "correlation_id": "reg-trace-619bc360595a",
+    "source": "creator-core",
+    "action": "log_provenance",
+    "evidence_ref": "ev-49c92e8786654f3a",
+    "provenance": {
+      "authority_level": "passive_observer",
+      "governance_role": "observability_only",
+      "system_origin": "creator-core",
+      "operator_hash": "prov-e6beb9808eadae62",
+      "ingested_at": "2026-07-24T10:49:33.556300Z",
+      "environment": "dev"
+    }
+  },
+  "ev-252bc86335714c48": {
+    "bundle_id": "bundle-e34632faad8e",
+    "trace_id": "reg-trace-3504c6d7638f",
+    "execution_id": "reg-trace-3504c6d7638f",
+    "decision_id": "dec-0fb80984b8ba",
+    "decision_type": "compliance_attestation",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "CREATOR_CORE",
+      "PRAVAH_REGISTRIES"
+    ],
+    "evidence": {
+      "attestation": "Provenance metadata signature check passed",
+      "discipline": "PASS"
+    },
+    "produced_at": "2026-07-24T12:00:00Z",
+    "correlation_id": "reg-trace-3504c6d7638f",
+    "source": "creator-core",
+    "action": "log_provenance",
+    "evidence_ref": "ev-252bc86335714c48",
+    "provenance": {
+      "authority_level": "passive_observer",
+      "governance_role": "observability_only",
+      "system_origin": "creator-core",
+      "operator_hash": "prov-e6beb9808eadae62",
+      "ingested_at": "2026-07-24T10:49:36.151468Z",
+      "environment": "dev"
+    }
+  },
+  "ev-eac0885b6f8b406e": {
+    "bundle_id": "bundle-0ca531d28b85",
+    "trace_id": "reg-trace-340d56b475a7",
+    "execution_id": "reg-trace-340d56b475a7",
+    "decision_id": "dec-d5ba81bb82d0",
+    "decision_type": "compliance_attestation",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "CREATOR_CORE",
+      "PRAVAH_REGISTRIES"
+    ],
+    "evidence": {
+      "attestation": "Provenance metadata signature check passed",
+      "discipline": "PASS"
+    },
+    "produced_at": "2026-07-24T12:00:00Z",
+    "correlation_id": "reg-trace-340d56b475a7",
+    "source": "creator-core",
+    "action": "log_provenance",
+    "evidence_ref": "ev-eac0885b6f8b406e",
+    "provenance": {
+      "authority_level": "passive_observer",
+      "governance_role": "observability_only",
+      "system_origin": "creator-core",
+      "operator_hash": "prov-e6beb9808eadae62",
+      "ingested_at": "2026-07-24T11:03:09.274393Z",
+      "environment": "dev"
+    }
+  },
+  "ev-92086614fe20414e": {
+    "bundle_id": "bundle-712e1f2cc6c9",
+    "trace_id": "reg-trace-01cf17f01211",
+    "execution_id": "reg-trace-01cf17f01211",
+    "decision_id": "dec-08c18c2bb313",
+    "decision_type": "compliance_attestation",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "CREATOR_CORE",
+      "PRAVAH_REGISTRIES"
+    ],
+    "evidence": {
+      "attestation": "Provenance metadata signature check passed",
+      "discipline": "PASS"
+    },
+    "produced_at": "2026-07-24T12:00:00Z",
+    "correlation_id": "reg-trace-01cf17f01211",
+    "source": "creator-core",
+    "action": "log_provenance",
+    "evidence_ref": "ev-92086614fe20414e",
+    "provenance": {
+      "authority_level": "passive_observer",
+      "governance_role": "observability_only",
+      "system_origin": "creator-core",
+      "operator_hash": "prov-e6beb9808eadae62",
+      "ingested_at": "2026-07-29T05:00:46.704148Z",
+      "environment": "dev"
+    }
+  },
+  "ev-17e66a707e2244fe": {
+    "bundle_id": "bundle-ee25c036473f",
+    "trace_id": "intent-trace-84a6b09f5b69",
+    "execution_id": "exec-25d56777cb1b",
+    "decision_id": "dec-eacf21912419",
+    "decision_type": "compliance_check",
+    "authority_chain": [
+      "HUMAN_INTENT",
+      "PROMPT_RUNNER",
+      "PRAVAH_OBSERVABILITY"
+    ],
+    "evidence": {
+      "attestation": "Verification bundle generated for E2E trace",
+      "compliance": "PASS",
+      "constitutional_hash": "sha256-a94fbe92e3c0d8f0"
+    },
+    "produced_at": "2026-08-04T10:55:28.691878Z",
+    "correlation_id": "intent-trace-84a6b09f5b69",
+    "source": "SHAKTI",
+    "action": "publish_evidence"
+  }
+}

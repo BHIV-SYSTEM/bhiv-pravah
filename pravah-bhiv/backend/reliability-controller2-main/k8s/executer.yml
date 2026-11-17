@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: executer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: executer
+  template:
+    metadata:
+      labels:
+        app: executer
+    spec:
+      containers:
+      - name: executer
+        image: rayyandevopss/executer-service:latest
+        ports:
+        - containerPort: 5003
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: executer-service
+spec:
+  selector:
+    app: executer
+  ports:
+    - protocol: TCP
+      port: 5003
+      targetPort: 5003
+  type: NodePort

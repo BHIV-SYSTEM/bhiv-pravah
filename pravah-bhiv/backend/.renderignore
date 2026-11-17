@@ -1,0 +1,23 @@
+# Render Ignore File
+# Prevents Render from auto-detecting and running these files
+
+# Simulation and testing files
+main.py
+testing/
+tests/
+_demos/
+
+# Development files
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+
+# Documentation
+*.md
+!README.md
+
+# Local development
+.venv/
+venv/
+.env.local

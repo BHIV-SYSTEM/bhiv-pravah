@@ -1,0 +1,2 @@
+timestamp,agent_name,status,environment,heartbeat_interval
+2026-08-19T15:54:56.080047,test-agent,alive,dev,30
