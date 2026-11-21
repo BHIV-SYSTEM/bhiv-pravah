@@ -1,0 +1,45 @@
+{
+  "registry_version": "1.0",
+  "registry_kind": "capability",
+  "capability_id": "pravah-stream-processor",
+  "capability_name": "stream_processing_and_replay_ledger",
+  "capability_type": "stream_processor",
+  "owner": {
+    "group": "group4",
+    "module_id": "pravah-stream-processor"
+  },
+  "maturity": "V1",
+  "status": "PRESENT",
+  "runtime": {
+    "service_hosted": true,
+    "endpoint": "/api/v1/stream"
+  },
+  "produces": [
+    "stream_event",
+    "state_hash",
+    "replay_verification"
+  ],
+  "metadata": {
+    "name": "pravah-stream-processor",
+    "implementation_status": "PRESENT",
+    "schema_version": "1.0",
+    "verification_evidence": [
+      "pravah/stream_processor.py",
+      "pravah/replay_ledger.py",
+      "pravah/schema_validator.py",
+      "tests/test_pravah_stream_processor.py",
+      "tests/test_pravah_replay_ledger.py",
+      "tests/test_pravah_schema_validation.py",
+      "tests/test_pravah_error_handling.py",
+      "tests/test_pravah_determinism_50_runs.py"
+    ],
+    "downstream_integrations": [
+      "GC Shakti",
+      "Niyantran",
+      "Bucket",
+      "Gov-OS",
+      "Saarthi"
+    ],
+    "integration_status": "ACTIVE_VERIFIED"
+  }
+}

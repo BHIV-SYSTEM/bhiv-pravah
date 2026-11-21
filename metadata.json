@@ -1,0 +1,47 @@
+{
+  "name": "bhiv-pravah",
+  "display_name": "Pravah Replay and Evidence Ledger",
+  "version": "1.0.0",
+  "description": "Deterministic event streaming, replay verification, and cryptographic evidence ledger for the BHIV autonomous ecosystem.",
+  "task_id": "T-OUT-OF-SYLLABUS",
+  "target_product": "Pravah Replay and Evidence Ledger (PRAVAH)",
+  "assignee": "Kavy Changela",
+  "schema_version": "1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BHIV-SYSTEM/bhiv-pravah"
+  },
+  "integration_block": {
+    "primary_subsystem": "Pravah Replay and Evidence Ledger: Primary System & Subsystem Core",
+    "governance_authority": "GC Shakti: Governance Intelligence & Policy Authority",
+    "lifecycle_engine": "Niyantran: Task Assignment & Workflow Lifecycle Engine",
+    "audit_storage": "Bucket: Evidence & Immutable Audit Storage",
+    "verification_ledger": "Gov-OS: Governance Ledger & Cryptographic Verification",
+    "visibility_layer": "Saarthi: Visibility Layer & Operational Oversight"
+  },
+  "downstream_integrations": [
+    "GC Shakti",
+    "Niyantran",
+    "Bucket",
+    "Gov-OS",
+    "Saarthi"
+  ],
+  "api_registration": {
+    "stream_processor": {
+      "endpoint": "/api/v1/stream",
+      "method": "POST",
+      "schema_version": "1.0",
+      "status": "ACTIVE"
+    },
+    "replay_ledger": {
+      "endpoint": "/api/v1/replay",
+      "method": "GET",
+      "status": "ACTIVE"
+    },
+    "health_check": {
+      "endpoint": "/health",
+      "method": "GET",
+      "status": "HEALTHY"
+    }
+  }
+}

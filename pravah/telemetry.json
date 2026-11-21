@@ -1,0 +1,20 @@
+[
+  {
+    "timestamp": "2026-02-14T19:33:24.385034",
+    "dashboard_mode": "User Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T19:33:50.881847",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  },
+  {
+    "timestamp": "2026-02-14T19:34:02.223117",
+    "dashboard_mode": "Developer Mode",
+    "active_users": 1,
+    "system_health": "healthy"
+  }
+]

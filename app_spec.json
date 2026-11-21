@@ -1,0 +1,66 @@
+{
+  "name": "bhiv-pravah",
+  "type": "backend",
+  "repo_path_or_url": "https://github.com/BHIV-SYSTEM/bhiv-pravah",
+  "source_type": "python",
+  "build_command": "pip install -r requirements.txt",
+  "start_command": "python -m pravah.stream_processor",
+  "health_endpoint": "/health",
+  "environments": ["dev", "stage", "prod"],
+  "port": 8000,
+  "resources": {
+    "cpu": "0.5",
+    "memory": "512Mi"
+  },
+  "scaling": {
+    "min_replicas": 1,
+    "max_replicas": 3,
+    "target_cpu_percent": 70
+  },
+  "dependencies": ["requirements.txt"],
+  "metadata": {
+    "name": "bhiv-pravah",
+    "version": "1.0.0",
+    "product": "Pravah Replay and Evidence Ledger",
+    "task_id": "T-OUT-OF-SYLLABUS",
+    "schema_version": "1.0",
+    "downstream_integrations": [
+      {
+        "system": "Pravah Replay and Evidence Ledger",
+        "role": "Primary System & Subsystem Core",
+        "status": "ACTIVE"
+      },
+      {
+        "system": "GC Shakti",
+        "role": "Governance Intelligence & Policy Authority",
+        "status": "INTEGRATED"
+      },
+      {
+        "system": "Niyantran",
+        "role": "Task Assignment & Workflow Lifecycle Engine",
+        "status": "INTEGRATED"
+      },
+      {
+        "system": "Bucket",
+        "role": "Evidence & Immutable Audit Storage",
+        "status": "INTEGRATED"
+      },
+      {
+        "system": "Gov-OS",
+        "role": "Governance Ledger & Cryptographic Verification",
+        "status": "INTEGRATED"
+      },
+      {
+        "system": "Saarthi",
+        "role": "Visibility Layer & Operational Oversight",
+        "status": "INTEGRATED"
+      }
+    ],
+    "api_registration": {
+      "stream_endpoint": "/api/v1/stream",
+      "replay_endpoint": "/api/v1/replay",
+      "health_endpoint": "/health",
+      "port": 8000
+    }
+  }
+}
